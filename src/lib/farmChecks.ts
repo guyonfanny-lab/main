@@ -9,9 +9,10 @@ export function noFarmActionTaken(frames: FarmFrame[]): boolean {
   return frames.length <= 1
 }
 
-export function tractorAt(frames: FarmFrame[], x: number, y: number): boolean {
+export function tractorAt(frames: FarmFrame[], x: number, y: number, facing?: number): boolean {
   const frame = lastFrame(frames)
-  return !!frame && frame.tractorX === x && frame.tractorY === y
+  if (!frame || frame.tractorX !== x || frame.tractorY !== y) return false
+  return facing === undefined || frame.tractorFacing === facing
 }
 
 export function allHarvested(frames: FarmFrame[]): boolean {

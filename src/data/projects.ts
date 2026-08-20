@@ -781,6 +781,14 @@ const tortueProject: Project = {
 // ============================================================
 const row = (...cells: FarmCell[]): FarmCell[][] => [cells]
 
+function field(width: number, height: number, recolteCoords: [number, number][]): FarmCell[][] {
+  const grid: FarmCell[][] = Array.from({ length: height }, () =>
+    Array.from({ length: width }, () => 'vide' as FarmCell),
+  )
+  for (const [x, y] of recolteCoords) grid[y][x] = 'recolte'
+  return grid
+}
+
 const fermeProject: Project = {
   id: 'ferme',
   title: 'Le Fermier Remplacé',
@@ -891,6 +899,98 @@ const fermeProject: Project = {
         allHarvested(frames)
           ? ok('Le fermier peut partir en vacances, ton tracteur gère tout ! 🤖🚜')
           : fail('recolter_ligne(6) doit récolter toutes les cases du champ.'),
+    },
+    {
+      id: 'ferme-6',
+      projectId: 'ferme',
+      title: 'Changer de ligne',
+      emoji: '🔃',
+      xp: 25,
+      intro:
+        "Un vrai champ a plusieurs lignes. Pour passer à la suivante : demi-tour (pivoter_droite() deux fois), reviens au début de la ligne, demi-tour à nouveau, puis descends d'une case.",
+      task:
+        'Le tracteur est déjà arrivé au bout de la première ligne (colonne 2), face à droite. Fais-le revenir au début de la ligne (colonne 0), puis passe à la ligne suivante en restant face à droite, prêt à repartir.',
+      starterCode: '# Ton code ici\n',
+      farmConfig: { width: 3, height: 2, cells: field(3, 2, []), startX: 2, startY: 0, startFacing: 90 },
+      hints: [
+        'Pour faire demi-tour : pivoter_droite() deux fois de suite (ça fait 180°).',
+        'pivoter_droite()\npivoter_droite()\ndeplacer()\ndeplacer()\npivoter_droite()\npivoter_droite()\npivoter_droite()\ndeplacer()\npivoter_gauche()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        tractorAt(frames, 0, 1, 90)
+          ? ok('Ligne suivante, prêt à repartir vers la droite ! 🔃')
+          : fail('Le tracteur doit finir sur la colonne 0 de la ligne suivante, face à droite.'),
+    },
+    {
+      id: 'ferme-7',
+      projectId: 'ferme',
+      title: 'Deux lignes, une fonction',
+      emoji: '🔁',
+      xp: 30,
+      intro:
+        'recolter_ligne() marche quelle que soit la direction du tracteur : elle avance juste tout droit en récoltant. Réutilise-la pour nettoyer une ligne, revenir, descendre, puis nettoyer la suivante.',
+      task:
+        'La fonction recolter_ligne est déjà prête. Récolte la ligne 0 (recolter_ligne(4)), reviens au début (demi-tour + recolter_ligne(4) à nouveau — ça ne fait rien de mal sur des cases déjà récoltées), redescends d\'une ligne comme à l\'étape précédente, puis récolte la ligne 1.',
+      starterCode:
+        'def recolter_ligne(nb_cases):\n    for _ in range(nb_cases):\n        if case_recoltable():\n            recolter()\n        deplacer()\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 4,
+        height: 2,
+        cells: field(4, 2, [
+          [0, 0],
+          [2, 0],
+          [1, 1],
+          [3, 1],
+        ]),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: [
+        "Réutilise le motif de l'étape précédente pour redescendre d'une ligne.",
+        'recolter_ligne(4)\npivoter_droite()\npivoter_droite()\nrecolter_ligne(4)\npivoter_droite()\npivoter_droite()\npivoter_droite()\ndeplacer()\npivoter_gauche()\nrecolter_ligne(4)',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Deux lignes nettoyées avec la même fonction ! 🔁')
+          : fail('Il faut récolter toutes les cases des deux lignes.'),
+    },
+    {
+      id: 'ferme-8',
+      projectId: 'ferme',
+      title: 'Le champ tout entier',
+      emoji: '🏆',
+      xp: 45,
+      intro:
+        "Généralise en une fonction recolter_champ(largeur, hauteur) qui répète le motif ligne par ligne — ton tracteur peut maintenant nettoyer un champ de n'importe quelle taille, tout seul.",
+      task:
+        'Complète `recolter_champ(largeur, hauteur)` : pour chaque ligne (boucle sur hauteur), récolte-la (recolter_ligne(largeur)), reviens au début (demi-tour + recolter_ligne(largeur)), puis passe à la ligne suivante — sauf sur la toute dernière ligne. Teste avec recolter_champ(4, 3).',
+      starterCode:
+        'def recolter_ligne(nb_cases):\n    for _ in range(nb_cases):\n        if case_recoltable():\n            recolter()\n        deplacer()\n\ndef recolter_champ(largeur, hauteur):\n    # complète ici\n    pass\n\nrecolter_champ(4, 3)\n',
+      farmConfig: {
+        width: 4,
+        height: 3,
+        cells: field(4, 3, [
+          [0, 0],
+          [2, 0],
+          [1, 1],
+          [3, 1],
+          [0, 2],
+          [2, 2],
+          [3, 2],
+        ]),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: [
+        "Mets tout le motif de l'étape précédente à l'intérieur d'une boucle for ligne in range(hauteur):.",
+        "N'avance vers la ligne suivante que si ce n'est pas la dernière : if ligne < hauteur - 1:.",
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Champ entier nettoyé tout seul. Le fermier peut vraiment partir ! 🏆🚜')
+          : fail('recolter_champ(4, 3) doit récolter toutes les cases du champ, ligne par ligne.'),
     },
   ],
 }
