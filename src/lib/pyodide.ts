@@ -165,11 +165,18 @@ function resetFarm(config?: FarmConfig) {
   snapshotFarm()
 }
 
-function farmDeplacer() {
+function farmAheadCoords(): { nx: number; ny: number } {
   const rad = (farm.facing * Math.PI) / 180
-  const nx = farm.x + Math.round(Math.sin(rad))
-  const ny = farm.y + Math.round(-Math.cos(rad))
-  if (nx >= 0 && nx < farm.width && ny >= 0 && ny < farm.height) {
+  return {
+    nx: farm.x + Math.round(Math.sin(rad)),
+    ny: farm.y + Math.round(-Math.cos(rad)),
+  }
+}
+
+function farmDeplacer() {
+  const { nx, ny } = farmAheadCoords()
+  const inBounds = nx >= 0 && nx < farm.width && ny >= 0 && ny < farm.height
+  if (inBounds && farm.grid[ny][nx] !== 'rocher') {
     farm.x = nx
     farm.y = ny
   }
@@ -188,8 +195,21 @@ function farmRecolter() {
   snapshotFarm()
 }
 
+function farmPlanter() {
+  if (farm.grid[farm.y][farm.x] === 'vide') {
+    farm.grid[farm.y][farm.x] = 'recolte'
+  }
+  snapshotFarm()
+}
+
 function farmCaseRecoltable(): boolean {
   return farm.grid[farm.y][farm.x] === 'recolte'
+}
+
+function farmCaseLibre(): boolean {
+  const { nx, ny } = farmAheadCoords()
+  if (nx < 0 || nx >= farm.width || ny < 0 || ny >= farm.height) return false
+  return farm.grid[ny][nx] !== 'rocher'
 }
 
 function registerFarmApi(pyodide: PyodideInterface) {
@@ -197,7 +217,9 @@ function registerFarmApi(pyodide: PyodideInterface) {
   pyodide.globals.set('pivoter_droite', () => farmPivoter(90))
   pyodide.globals.set('pivoter_gauche', () => farmPivoter(-90))
   pyodide.globals.set('recolter', () => farmRecolter())
+  pyodide.globals.set('planter', () => farmPlanter())
   pyodide.globals.set('case_recoltable', () => farmCaseRecoltable())
+  pyodide.globals.set('case_libre', () => farmCaseLibre())
 }
 
 export function getPyodide(): Promise<PyodideInterface> {

@@ -13,7 +13,7 @@ export interface DrawCommand {
   width: number
 }
 
-export type FarmCell = 'vide' | 'recolte'
+export type FarmCell = 'vide' | 'recolte' | 'rocher'
 
 /** One frame of the tractor grid, snapshotted after every farm action for a step-by-step replay. */
 export interface FarmFrame {

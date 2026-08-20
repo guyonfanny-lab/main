@@ -52,6 +52,8 @@ export default function FarmGrid({ frames }: FarmGridProps) {
                   </span>
                 ) : cell === 'recolte' ? (
                   '🌾'
+                ) : cell === 'rocher' ? (
+                  '🪨'
                 ) : (
                   ''
                 )}

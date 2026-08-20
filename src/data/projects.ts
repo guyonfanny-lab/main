@@ -992,6 +992,112 @@ const fermeProject: Project = {
           ? ok('Champ entier nettoyé tout seul. Le fermier peut vraiment partir ! 🏆🚜')
           : fail('recolter_champ(4, 3) doit récolter toutes les cases du champ, ligne par ligne.'),
     },
+    {
+      id: 'ferme-9',
+      projectId: 'ferme',
+      title: 'Un rocher sur le chemin',
+      emoji: '🪨',
+      xp: 20,
+      intro:
+        "Certains champs ont des rochers (🪨) : impossible d'avancer dessus, le tracteur reste bloqué s'il essaie. case_libre() te dit si la case juste devant toi est libre, avant même d'avancer.",
+      task:
+        "Le champ a un rocher tout au bout. Affiche case_libre() sur la case de départ (rien devant, True), avance deux fois, puis affiche case_libre() à nouveau (le rocher est juste devant, False).",
+      starterCode: '# Ton code ici\n',
+      farmConfig: {
+        width: 4,
+        height: 1,
+        cells: [['vide', 'vide', 'vide', 'rocher']],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['print(case_libre())\ndeplacer()\ndeplacer()\nprint(case_libre())'],
+      check: (stdout) => {
+        const ls = lines(stdout)
+        return ls.length === 2 && ls[0] === 'True' && ls[1] === 'False'
+          ? ok('Le capteur a repéré le rocher avant la collision ! 🪨🔍')
+          : fail('Il faut afficher True, puis False une fois arrivé juste devant le rocher.')
+      },
+    },
+    {
+      id: 'ferme-10',
+      projectId: 'ferme',
+      title: "Contourner l'obstacle",
+      emoji: '🔄',
+      xp: 30,
+      intro:
+        "Un rocher bloque la route directe, mais le champ a une deuxième ligne libre en dessous. Descends, contourne, puis remonte : le même genre de demi-tour que tu connais déjà, en plus court.",
+      task:
+        'Un rocher est en case (1, 0). Fais aller le tracteur de sa case de départ (0, 0) jusqu\'à la case (2, 0), en passant par la ligne du dessous pour éviter le rocher.',
+      starterCode: '# Ton code ici\n',
+      farmConfig: {
+        width: 3,
+        height: 2,
+        cells: [
+          ['vide', 'rocher', 'vide'],
+          ['vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: [
+        'Descends (pivoter_droite() puis deplacer()), avance de deux cases sur la ligne du bas, puis remonte (pivoter_gauche() puis deplacer()).',
+        'pivoter_droite()\ndeplacer()\npivoter_gauche()\ndeplacer()\ndeplacer()\npivoter_gauche()\ndeplacer()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        tractorAt(frames, 2, 0)
+          ? ok('Rocher évité, mission accomplie ! 🔄🪨')
+          : fail('Le tracteur doit finir sur la case (2, 0) sans être passé par le rocher.'),
+    },
+    {
+      id: 'ferme-11',
+      projectId: 'ferme',
+      title: 'Semer avant de récolter',
+      emoji: '🌱',
+      xp: 20,
+      intro:
+        "planter() plante une graine sur une case vide — elle pousse instantanément (la magie du code !) et devient prête à récolter.",
+      task: 'La case de départ est vide. Plante une culture avec planter(), vérifie avec case_recoltable() (True), puis récolte-la avec recolter().',
+      starterCode: '# Ton code ici\n',
+      farmConfig: { width: 1, height: 1, cells: field(1, 1, []), startX: 0, startY: 0, startFacing: 90 },
+      hints: ['planter()\nprint(case_recoltable())\nrecolter()'],
+      check: (stdout, _get, _commands, frames) =>
+        hasLine(stdout, 'True') && allHarvested(frames)
+          ? ok('Semé puis récolté, ton tracteur sait tout faire ! 🌱')
+          : fail("Plante avec planter(), affiche True avec case_recoltable(), puis récolte."),
+    },
+    {
+      id: 'ferme-12',
+      projectId: 'ferme',
+      title: 'Le champ sauvage',
+      emoji: '🏆',
+      xp: 50,
+      intro:
+        "Ton dernier défi de fermier : un champ avec des récoltes ET un rocher au milieu. Récolte les deux premières cases, contourne le rocher par la ligne du dessous, puis récolte les deux dernières.",
+      task:
+        'Ligne 0 : récolte, récolte, rocher, récolte, récolte (cases 0 à 4). Récolte les cases 0 et 1, contourne le rocher (case 2) par la ligne 1, reviens sur la ligne 0, puis récolte les cases 3 et 4.',
+      starterCode: '# Ton code ici\n',
+      farmConfig: {
+        width: 5,
+        height: 2,
+        cells: [
+          ['recolte', 'recolte', 'rocher', 'recolte', 'recolte'],
+          ['vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: [
+        'Récolte case 0, avance, récolte case 1. Puis contourne comme à l\'étape "Contourner l\'obstacle" pour atteindre la case (3, 0). Récolte, avance, récolte.',
+        'if case_recoltable():\n    recolter()\ndeplacer()\nif case_recoltable():\n    recolter()\npivoter_droite()\ndeplacer()\npivoter_gauche()\ndeplacer()\ndeplacer()\npivoter_gauche()\ndeplacer()\npivoter_droite()\nif case_recoltable():\n    recolter()\ndeplacer()\nif case_recoltable():\n    recolter()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok("Champ sauvage dompté : récoltes ramassées, rocher évité. Bravo, fermier remplacé pour de bon ! 🏆🚜🪨")
+          : fail('Il faut récolter les 4 cases de récolte en évitant le rocher.'),
+    },
   ],
 }
 
