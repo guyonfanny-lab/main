@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { python } from '@codemirror/lang-python'
 import confetti from 'canvas-confetti'
-import type { DrawCommand, Exercise } from '../types'
+import type { DrawCommand, Exercise, FarmFrame } from '../types'
 import { getPyodide, runPython } from '../lib/pyodide'
 import { playError, playSuccess, playTap } from '../lib/sound'
 import type { CompleteLessonResult } from '../lib/storage'
 import { loadSavedCode, saveCode } from '../lib/codeStorage'
 import SuccessModal from './SuccessModal'
 import TurtleCanvas from './TurtleCanvas'
+import FarmGrid from './FarmGrid'
 
 interface LessonScreenProps {
   lesson: Exercise
@@ -46,9 +47,24 @@ export default function LessonScreen({
   const [pyodideReady, setPyodideReady] = useState(false)
   const [output, setOutput] = useState<{ stdout: string; error: string | null } | null>(null)
   const [drawCommands, setDrawCommands] = useState<DrawCommand[]>([])
+  const [farmFrames, setFarmFrames] = useState<FarmFrame[]>(() =>
+    lesson.farmConfig
+      ? [
+          {
+            grid: lesson.farmConfig.cells,
+            tractorX: lesson.farmConfig.startX,
+            tractorY: lesson.farmConfig.startY,
+            tractorFacing: lesson.farmConfig.startFacing,
+          },
+        ]
+      : [],
+  )
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null)
   const [hintsShown, setHintsShown] = useState(0)
   const [successData, setSuccessData] = useState<CompleteLessonResult | null>(null)
+  // Bumped on every run so FarmGrid remounts (via key) and replays its
+  // animation from frame 0, instead of resetting animation state in an effect.
+  const [runCount, setRunCount] = useState(0)
 
   // Parent remounts this component (via a `key={lesson.id}` prop) whenever
   // the lesson changes, so state above is naturally fresh — no reset effect needed.
@@ -68,11 +84,13 @@ export default function LessonScreen({
   async function handleRun() {
     setRunning(true)
     setFeedback(null)
+    setRunCount((c) => c + 1)
     playTap(soundOn)
     try {
-      const result = await runPython(code)
+      const result = await runPython(code, lesson.farmConfig)
       setOutput({ stdout: result.stdout, error: result.error })
       setDrawCommands(result.commands)
+      setFarmFrames(result.farmFrames)
       setPyodideReady(true)
 
       if (result.error) {
@@ -81,7 +99,7 @@ export default function LessonScreen({
         return
       }
 
-      const check = lesson.check(result.stdout, result.get, result.commands)
+      const check = lesson.check(result.stdout, result.get, result.commands, result.farmFrames)
       setFeedback(check)
 
       if (check.ok) {
@@ -89,8 +107,10 @@ export default function LessonScreen({
         fireConfetti()
         const completion = onComplete(lesson)
         // Give the learner a beat to actually see what they just made (the
-        // drawing, the printed output) before the congrats modal covers it.
-        window.setTimeout(() => setSuccessData(completion), 900)
+        // drawing, the tractor's replay, the printed output) before the
+        // congrats modal covers it — longer when there's an animation to watch.
+        const watchTime = Math.max(900, result.farmFrames.length * 320 + 400)
+        window.setTimeout(() => setSuccessData(completion), watchTime)
       } else {
         playError(soundOn)
       }
@@ -158,6 +178,7 @@ export default function LessonScreen({
       </button>
 
       {(lesson.visual || drawCommands.length > 0) && <TurtleCanvas commands={drawCommands} />}
+      {lesson.farmConfig && <FarmGrid key={runCount} frames={farmFrames} />}
 
       {output && (
         <div className="mb-3 rounded-xl bg-black/40 p-3 font-mono text-xs text-white/80">

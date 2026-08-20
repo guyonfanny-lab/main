@@ -1,5 +1,6 @@
-import type { CheckResult, Project } from '../types'
+import type { CheckResult, FarmCell, Project } from '../types'
 import { allSegmentsColor, allSegmentsLength, angleBetween, pathCloses, segmentLength } from '../lib/turtleChecks'
+import { allHarvested, tractorAt } from '../lib/farmChecks'
 
 const lines = (s: string) =>
   s
@@ -775,12 +776,132 @@ const tortueProject: Project = {
   ],
 }
 
+// ============================================================
+// PROJET 8 — Le Fermier Remplacé (Avancé)
+// ============================================================
+const row = (...cells: FarmCell[]): FarmCell[][] => [cells]
+
+const fermeProject: Project = {
+  id: 'ferme',
+  title: 'Le Fermier Remplacé',
+  emoji: '🚜',
+  description: "Programme un tracteur autonome qui récolte tout un champ à ta place.",
+  difficulty: 'Avancé',
+  color: 'from-amber-600 to-yellow-500',
+  steps: [
+    {
+      id: 'ferme-1',
+      projectId: 'ferme',
+      title: 'Le tracteur avance',
+      emoji: '🚜',
+      xp: 10,
+      intro:
+        "Un petit champ t'attend, et un tracteur robot prêt à travailler. deplacer() fait avancer le tracteur d'une case dans la direction où il regarde. Regarde-le bouger case par case après avoir lancé ton code !",
+      task: 'Fais avancer le tracteur de 3 cases (appelle deplacer() trois fois).',
+      starterCode: '# Ton code ici\n',
+      farmConfig: { width: 5, height: 1, cells: row('vide', 'vide', 'vide', 'vide', 'vide'), startX: 0, startY: 0, startFacing: 90 },
+      hints: ['deplacer()\ndeplacer()\ndeplacer()'],
+      check: (_stdout, _get, _commands, frames) =>
+        tractorAt(frames, 3, 0)
+          ? ok('Le tracteur roule tout seul ! 🚜')
+          : fail('Il faut avancer de 3 cases (deplacer() trois fois).'),
+    },
+    {
+      id: 'ferme-2',
+      projectId: 'ferme',
+      title: 'Récolter une case',
+      emoji: '🌾',
+      xp: 15,
+      intro: 'recolter() récolte la culture sur la case où se trouve le tracteur, si elle est prête.',
+      task: 'Une récolte prête se trouve juste devant le tracteur. Avance d\'une case avec deplacer(), puis récolte avec recolter().',
+      starterCode: '# Ton code ici\n',
+      farmConfig: { width: 3, height: 1, cells: row('vide', 'recolte', 'vide'), startX: 0, startY: 0, startFacing: 90 },
+      hints: ['deplacer()\nrecolter()'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames) && tractorAt(frames, 1, 0)
+          ? ok('Première récolte engrangée ! 🌾')
+          : fail("Il faut avancer d'une case puis récolter (deplacer() puis recolter())."),
+    },
+    {
+      id: 'ferme-3',
+      projectId: 'ferme',
+      title: 'Est-ce prêt ?',
+      emoji: '🔍',
+      xp: 15,
+      intro:
+        'case_recoltable() te dit (True ou False) si la case actuelle contient une récolte prête, avant même de la récolter.',
+      task:
+        'Le champ contient une case vide puis une case avec une récolte. Affiche case_recoltable() sur la case de départ, avance une fois avec deplacer(), puis affiche case_recoltable() à nouveau.',
+      starterCode: '# Ton code ici\n',
+      farmConfig: { width: 3, height: 1, cells: row('vide', 'recolte', 'vide'), startX: 0, startY: 0, startFacing: 90 },
+      hints: ['print(case_recoltable())\ndeplacer()\nprint(case_recoltable())'],
+      check: (stdout) => {
+        const ls = lines(stdout)
+        return ls.length === 2 && ls[0] === 'False' && ls[1] === 'True'
+          ? ok('Le capteur ne se trompe jamais : False puis True ! 🔍')
+          : fail('Il faut afficher False, puis True après avoir avancé.')
+      },
+    },
+    {
+      id: 'ferme-4',
+      projectId: 'ferme',
+      title: 'Récolte toute la ligne',
+      emoji: '🌾🌾🌾',
+      xp: 25,
+      intro:
+        "Combine boucle, capteur et récolte pour tout ramasser automatiquement, sans savoir à l'avance où sont les récoltes.",
+      task:
+        'Le champ (5 cases) contient des récoltes à des endroits que tu ne connais pas à l\'avance. Écris une boucle qui, pour chacune des 5 cases (en avançant à chaque tour) : récolte si case_recoltable() est vrai.',
+      starterCode: '# Ton code ici\n',
+      farmConfig: {
+        width: 5,
+        height: 1,
+        cells: row('recolte', 'vide', 'recolte', 'recolte', 'vide'),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['for _ in range(5):\n    if case_recoltable():\n        recolter()\n    deplacer()'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Champ nettoyé du premier au dernier grain ! 🌾')
+          : fail('Il faut récolter toutes les cases du champ (utilise une boucle + case_recoltable()).'),
+    },
+    {
+      id: 'ferme-5',
+      projectId: 'ferme',
+      title: 'Ta fonction récolteuse',
+      emoji: '🤖',
+      xp: 35,
+      intro:
+        "Transforme ta boucle en fonction réutilisable, capable de récolter une ligne de n'importe quelle taille — ton tracteur est maintenant totalement autonome.",
+      task:
+        'Complète `recolter_ligne(nb_cases)` : pour chacune des nb_cases cases, récolte si case_recoltable() est vrai, puis avance. Teste avec recolter_ligne(6) sur un champ de 6 cases.',
+      starterCode: 'def recolter_ligne(nb_cases):\n    # complète ici\n    pass\n\nrecolter_ligne(6)\n',
+      farmConfig: {
+        width: 6,
+        height: 1,
+        cells: row('recolte', 'recolte', 'vide', 'recolte', 'vide', 'recolte'),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['for _ in range(nb_cases):\n        if case_recoltable():\n            recolter()\n        deplacer()'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Le fermier peut partir en vacances, ton tracteur gère tout ! 🤖🚜')
+          : fail('recolter_ligne(6) doit récolter toutes les cases du champ.'),
+    },
+  ],
+}
+
 export const PROJECTS: Project[] = [
   devineProject,
   emojiProject,
   combatProject,
   cesarProject,
   tortueProject,
+  fermeProject,
   histoireProject,
   quizProject,
 ]

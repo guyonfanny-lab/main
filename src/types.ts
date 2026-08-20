@@ -13,6 +13,26 @@ export interface DrawCommand {
   width: number
 }
 
+export type FarmCell = 'vide' | 'recolte'
+
+/** One frame of the tractor grid, snapshotted after every farm action for a step-by-step replay. */
+export interface FarmFrame {
+  grid: FarmCell[][]
+  tractorX: number
+  tractorY: number
+  tractorFacing: number
+}
+
+/** Initial layout for a farm-grid exercise (see lib/pyodide.ts). */
+export interface FarmConfig {
+  width: number
+  height: number
+  cells: FarmCell[][]
+  startX: number
+  startY: number
+  startFacing: number
+}
+
 /** Shared shape for anything the learner codes against: a course lesson or a project step. */
 export interface Exercise {
   id: string
@@ -27,8 +47,15 @@ export interface Exercise {
   hints: string[]
   /** Shows an (initially empty) drawing canvas before the code has even run, so it's obvious one is coming. */
   visual?: boolean
-  /** Runs after the user's code executes; inspects stdout, globals, and anything drawn by the turtle. */
-  check: (stdout: string, get: (name: string) => unknown, commands: DrawCommand[]) => CheckResult
+  /** Initial tractor-grid layout, if this exercise controls the farm tractor instead of (or alongside) the turtle. */
+  farmConfig?: FarmConfig
+  /** Runs after the user's code executes; inspects stdout, globals, turtle drawing, and the farm grid's final frame. */
+  check: (
+    stdout: string,
+    get: (name: string) => unknown,
+    commands: DrawCommand[],
+    farmFrames: FarmFrame[],
+  ) => CheckResult
 }
 
 export interface Lesson extends Exercise {
