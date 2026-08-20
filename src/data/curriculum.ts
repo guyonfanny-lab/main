@@ -80,6 +80,13 @@ export const MODULES: Module[] = [
     description: 'Tout combiner !',
     color: 'from-red-500 to-orange-600',
   },
+  {
+    id: 'jeu',
+    title: 'Crée ton jeu',
+    emoji: '🎮',
+    description: 'Un jeu de combat, étape par étape',
+    color: 'from-indigo-500 to-purple-600',
+  },
 ]
 
 export const LESSONS: Lesson[] = [
@@ -259,6 +266,29 @@ export const LESSONS: Lesson[] = [
     },
   },
 
+  {
+    id: 'txt-4',
+    moduleId: 'texte',
+    title: 'Découper la phrase',
+    emoji: '🍞',
+    xp: 15,
+    intro:
+      '.split() sépare une chaîne en liste de mots (par défaut sur les espaces). " - ".join(liste) fait l\'inverse : elle recolle une liste en une chaîne.',
+    task:
+      'La variable `phrase = "le chat noir dort"` existe. Sépare-la en mots avec .split() dans une variable `mots`, affiche le nombre de mots avec len(), puis affiche les mots recollés avec " - " entre eux grâce à " - ".join(mots).',
+    starterCode: 'phrase = "le chat noir dort"\nmots = phrase.split()\n\n# 1) affiche len(mots)\n# 2) affiche " - ".join(mots)\n',
+    hints: [
+      'print(len(mots)) doit afficher 4.',
+      'print(" - ".join(mots)) doit afficher "le - chat - noir - dort".',
+    ],
+    check: (stdout) => {
+      const ls = lines(stdout)
+      return ls.includes('4') && ls.includes('le - chat - noir - dort')
+        ? ok('Phrase découpée puis recollée à la perfection ! 🧵')
+        : fail('Il faut afficher 4 (le nombre de mots) puis "le - chat - noir - dort".')
+    },
+  },
+
   // ---------------- CONDITIONS ----------------
   {
     id: 'cond-1',
@@ -384,6 +414,30 @@ export const LESSONS: Lesson[] = [
         : fail('total doit afficher la somme des pièces, soit 19.'),
   },
 
+  {
+    id: 'loop-4',
+    moduleId: 'boucles',
+    title: 'Le frein d\'urgence',
+    emoji: '🛑',
+    xp: 20,
+    intro: '`break` arrête complètement une boucle, immédiatement, dès qu\'on le rencontre.',
+    task:
+      'La liste `nombres = [3, 7, 2, 9, 4, 12, 1]` existe. Parcours-la avec un for, affiche chaque nombre, mais arrête la boucle avec break juste après avoir affiché un nombre strictement supérieur à 10 (donc le programme ne doit jamais afficher le 1 final).',
+    starterCode: 'nombres = [3, 7, 2, 9, 4, 12, 1]\n\nfor n in nombres:\n    print(n)\n    # arrête la boucle ici si n > 10\n',
+    hints: [
+      'if n > 10:\n        break',
+      'Le dernier nombre affiché doit être 12 (le 1 ne doit jamais apparaître).',
+    ],
+    check: (stdout) => {
+      const ls = lines(stdout)
+      const expected = ['3', '7', '2', '9', '4', '12']
+      const matches = ls.length === expected.length && expected.every((v, i) => ls[i] === v)
+      return matches
+        ? ok('Freinage parfait, pile au bon moment ! 🛑')
+        : fail('Il faut afficher 3, 7, 2, 9, 4 puis 12 (dans cet ordre), et rien après.')
+    },
+  },
+
   // ---------------- LISTES ----------------
   {
     id: 'list-1',
@@ -447,6 +501,24 @@ export const LESSONS: Lesson[] = [
     },
   },
 
+  {
+    id: 'list-4',
+    moduleId: 'listes',
+    title: 'Le classement',
+    emoji: '🏅',
+    xp: 20,
+    intro:
+      'sorted(liste) renvoie une NOUVELLE liste triée (la liste d\'origine ne change pas). Ajoute reverse=True pour trier du plus grand au plus petit.',
+    task:
+      'La liste `scores = [42, 17, 99, 8, 63]` existe. Affiche-la triée du plus grand au plus petit avec sorted(scores, reverse=True).',
+    starterCode: 'scores = [42, 17, 99, 8, 63]\n\n# Affiche scores triés du plus grand au plus petit\n',
+    hints: ['print(sorted(scores, reverse=True))'],
+    check: (stdout) =>
+      hasLine(stdout, '[99, 63, 42, 17, 8]')
+        ? ok('Podium établi, du meilleur au moins bon ! 🏆')
+        : fail('Il faut afficher [99, 63, 42, 17, 8].'),
+  },
+
   // ---------------- DICTIONNAIRES ----------------
   {
     id: 'dict-1',
@@ -503,6 +575,24 @@ export const LESSONS: Lesson[] = [
       hasSubstring(stdout, '15') && hasSubstring(stdout, 'agilite') && hasSubstring(stdout, '7')
         ? ok('Le grimoire est à jour, ton héros est plus fort ! ⚡')
         : fail('stats doit contenir force = 15 et une nouvelle clé agilite = 7.'),
+  },
+
+  {
+    id: 'dict-4',
+    moduleId: 'dictionnaires',
+    title: 'La valeur par défaut',
+    emoji: '🛡️',
+    xp: 20,
+    intro:
+      'Accéder à une clé qui n\'existe pas avec dico["cle"] plante le programme. .get("cle", valeur_par_defaut) est plus prudent : elle renvoie la valeur par défaut si la clé est absente.',
+    task:
+      'Le dictionnaire `stock = {"pommes": 10, "bananes": 5}` existe (il n\'y a pas de "poires"). Affiche la quantité de "poires" avec stock.get(), en utilisant 0 comme valeur par défaut.',
+    starterCode: 'stock = {"pommes": 10, "bananes": 5}\n\n# Affiche stock.get("poires", ...) ici\n',
+    hints: ['print(stock.get("poires", 0))', 'Le résultat doit être 0, sans erreur.'],
+    check: (stdout) =>
+      hasLine(stdout, '0')
+        ? ok('Aucune poire en stock, et aucun crash non plus ! 🛡️')
+        : fail('stock.get("poires", 0) doit afficher 0.'),
   },
 
   // ---------------- FONCTIONS ----------------
@@ -591,6 +681,141 @@ export const LESSONS: Lesson[] = [
       return ls.includes('True') && ls.includes('False') && ls.indexOf('True') < ls.indexOf('False')
         ? ok('Le dragon s\'incline. Le trésor est à toi ! 🏆🐉')
         : fail('mot_de_passe_valide("dragon7fire") doit être True et mot_de_passe_valide("court1") doit être False.')
+    },
+  },
+
+  // ---------------- CRÉE TON JEU ----------------
+  {
+    id: 'jeu-1',
+    moduleId: 'jeu',
+    title: 'Ton héros et son monstre',
+    emoji: '🧙',
+    xp: 15,
+    intro:
+      "Tu as vaincu le dragon : tu es prêt·e à créer un jeu à toi ! On va le construire petit bout par petit bout, sur plusieurs leçons — et tu pourras le tester à chaque étape en appuyant sur Lancer.",
+    task:
+      'Crée deux variables : `pv_heros = 30` et `pv_monstre = 20` (PV = points de vie). Affiche deux lignes avec des f-strings : "Héros : 30 PV" puis "Monstre : 20 PV".',
+    starterCode: '# Crée pv_heros et pv_monstre, puis affiche leurs PV\n',
+    hints: [
+      'pv_heros = 30\npv_monstre = 20',
+      'print(f"Héros : {pv_heros} PV")\nprint(f"Monstre : {pv_monstre} PV")',
+    ],
+    check: (stdout) => {
+      const ls = lines(stdout)
+      return ls.includes('Héros : 30 PV') && ls.includes('Monstre : 20 PV')
+        ? ok('Ton monde de jeu prend vie ! 🌟')
+        : fail('Affiche "Héros : 30 PV" puis "Monstre : 20 PV".')
+    },
+  },
+  {
+    id: 'jeu-2',
+    moduleId: 'jeu',
+    title: 'La fonction attaque',
+    emoji: '⚔️',
+    xp: 20,
+    intro:
+      'Une attaque enlève des PV. Écrivons une fonction réutilisable pour ça : le cœur de ton moteur de jeu.',
+    task:
+      'Écris une fonction `attaquer(pv, degats)` qui retourne `pv - degats`, sans jamais descendre sous 0 (utilise `max(0, pv - degats)`). Fais attaquer `pv_heros = 30` avec 7 dégâts, stocke le résultat dans `pv_heros`, puis affiche-le.',
+    starterCode:
+      'def attaquer(pv, degats):\n    # complète ici (utilise max(0, ...))\n    pass\n\npv_heros = 30\npv_heros = attaquer(pv_heros, 7)\nprint(pv_heros)\n',
+    hints: ['return max(0, pv - degats)', 'Le résultat affiché doit être 23.'],
+    check: (stdout) =>
+      hasLine(stdout, '23')
+        ? ok('Premier coup porté, ton moteur de combat fonctionne ! ⚔️')
+        : fail('attaquer(30, 7) doit retourner 23.'),
+  },
+  {
+    id: 'jeu-3',
+    moduleId: 'jeu',
+    title: 'Qui a gagné ?',
+    emoji: '🏳️',
+    xp: 15,
+    intro: 'Un combat se termine quand un des deux PV atteint 0. Utilisons des conditions pour le détecter.',
+    task:
+      'Les variables `pv_heros = 0` et `pv_monstre = 12` existent. Affiche "Le monstre gagne !" si pv_heros est à 0 ou moins, "Le héros gagne !" si pv_monstre est à 0 ou moins, sinon "Le combat continue...".',
+    starterCode: 'pv_heros = 0\npv_monstre = 12\n\n# if / elif / else\n',
+    hints: [
+      'if pv_heros <= 0:\n    print("Le monstre gagne !")\nelif pv_monstre <= 0:\n    print("Le héros gagne !")\nelse:\n    print("Le combat continue...")',
+    ],
+    check: (stdout) =>
+      hasLine(stdout, 'Le monstre gagne !')
+        ? ok('Verdict rendu : le monstre triomphe (pour cette fois) ! 🏳️')
+        : fail('Avec pv_heros = 0, le programme doit afficher "Le monstre gagne !".'),
+  },
+  {
+    id: 'jeu-4',
+    moduleId: 'jeu',
+    title: 'Plusieurs assauts',
+    emoji: '🔁',
+    xp: 20,
+    intro:
+      'Un vrai combat a plusieurs tours. La liste `assauts` contient les dégâts infligés au monstre à chaque tour : parcours-la avec une boucle.',
+    task:
+      'Les variables `pv_monstre = 20`, `assauts = [5, 8, 4, 6]` et la fonction `attaquer` existent déjà. Pour chaque valeur de `assauts`, applique-la à pv_monstre avec attaquer(), et affiche les PV restants après chaque coup.',
+    starterCode:
+      'def attaquer(pv, degats):\n    return max(0, pv - degats)\n\npv_monstre = 20\nassauts = [5, 8, 4, 6]\n\n# for degats in assauts: ...\n',
+    hints: [
+      'for degats in assauts:\n    pv_monstre = attaquer(pv_monstre, degats)\n    print(pv_monstre)',
+      'Tu dois voir 4 lignes : 15, 7, 3, puis 0.',
+    ],
+    check: (stdout) => {
+      const ls = lines(stdout)
+      const expected = ['15', '7', '3', '0']
+      const matches = ls.length === expected.length && expected.every((v, i) => ls[i] === v)
+      return matches
+        ? ok('Quatre assauts, quatre PV en moins, ton combat prend forme ! 🎯')
+        : fail('Il faut afficher 15, 7, 3 puis 0 (un par ligne, dans cet ordre).')
+    },
+  },
+  {
+    id: 'jeu-5',
+    moduleId: 'jeu',
+    title: "Stop dès la victoire",
+    emoji: '🛑',
+    xp: 20,
+    intro:
+      "Pas la peine de continuer à frapper un monstre déjà vaincu ! Utilise break pour arrêter le combat dès que pv_monstre atteint 0.",
+    task:
+      'Avec `pv_monstre = 20` et `assauts = [5, 8, 4, 6, 9, 3]`, arrête la boucle avec break dès que pv_monstre atteint 0 (donc les coups après ne doivent jamais être appliqués), puis affiche "Monstre vaincu !" juste après la boucle.',
+    starterCode:
+      'def attaquer(pv, degats):\n    return max(0, pv - degats)\n\npv_monstre = 20\nassauts = [5, 8, 4, 6, 9, 3]\n\nfor degats in assauts:\n    pv_monstre = attaquer(pv_monstre, degats)\n    print(pv_monstre)\n    # arrête la boucle ici si pv_monstre atteint 0\n\nprint("Monstre vaincu !")\n',
+    hints: [
+      'if pv_monstre <= 0:\n        break',
+      'Avec ces dégâts, le monstre tombe à 0 pile au 4e coup : tu dois voir 15, 7, 3, 0, puis "Monstre vaincu !" (rien d\'autre).',
+    ],
+    check: (stdout) => {
+      const ls = lines(stdout)
+      const expected = ['15', '7', '3', '0', 'Monstre vaincu !']
+      const matches = ls.length === expected.length && expected.every((v, i) => ls[i] === v)
+      return matches
+        ? ok('Combat terminé net, pas un coup de trop ! 🛑')
+        : fail('Il faut afficher 15, 7, 3, 0 puis "Monstre vaincu !", et rien après.')
+    },
+  },
+  {
+    id: 'jeu-6',
+    moduleId: 'jeu',
+    title: 'Ton jeu complet',
+    emoji: '🏆',
+    xp: 40,
+    intro:
+      "Tu as tous les morceaux : PV, attaque, conditions, boucle avec arrêt. Assemble-les dans une seule fonction combat() qui simule le combat en entier — ton propre jeu, prêt à jouer !",
+    task:
+      'Complète la fonction `combat(pv_heros, pv_monstre, assauts)` : elle doit arrêter la boucle (break) dès que pv_monstre atteint 0, puis retourner "Victoire !" si pv_monstre est à 0, sinon "Combat inachevé". Teste-la avec print(combat(30, 20, [5, 8, 4, 6, 9, 3])).',
+    starterCode:
+      'def attaquer(pv, degats):\n    return max(0, pv - degats)\n\ndef combat(pv_heros, pv_monstre, assauts):\n    for degats in assauts:\n        pv_monstre = attaquer(pv_monstre, degats)\n        print(pv_monstre)\n        # arrête la boucle si le monstre est vaincu\n\n    # renvoie "Victoire !" si pv_monstre est à 0, sinon "Combat inachevé"\n\nprint(combat(30, 20, [5, 8, 4, 6, 9, 3]))\n',
+    hints: [
+      'if pv_monstre <= 0:\n            break',
+      'return "Victoire !" if pv_monstre <= 0 else "Combat inachevé"',
+    ],
+    check: (stdout) => {
+      const ls = lines(stdout)
+      const expected = ['15', '7', '3', '0', 'Victoire !']
+      const matches = ls.length === expected.length && expected.every((v, i) => ls[i] === v)
+      return matches
+        ? ok('Ton jeu tourne, du début à la fin. Bravo, tu es développeur·euse de jeux ! 🏆🎮')
+        : fail('Le combat doit afficher 15, 7, 3, 0 puis "Victoire !".')
     },
   },
 ]

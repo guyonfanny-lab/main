@@ -89,7 +89,13 @@ export default function LessonScreen({
   const isLastLesson = !nextLesson
 
   return (
-    <div className="mx-auto flex max-w-md flex-col px-4 pb-8 pt-4">
+    <div
+      className="mx-auto flex max-w-md flex-col px-4"
+      style={{
+        paddingTop: 'calc(var(--safe-top) + 16px)',
+        paddingBottom: 'calc(var(--safe-bottom) + 32px)',
+      }}
+    >
       <button
         type="button"
         onClick={onBack}

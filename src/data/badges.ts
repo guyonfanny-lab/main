@@ -39,6 +39,12 @@ export const BADGES: Badge[] = [
     description: 'Termine le boss final.',
   },
   {
+    id: 'createur-de-jeux',
+    title: 'Créateur·rice de jeux',
+    emoji: '🎮',
+    description: 'Termine le monde Crée ton jeu.',
+  },
+  {
     id: 'maitre-python',
     title: 'Maître·sse Python',
     emoji: '👑',
@@ -64,6 +70,7 @@ export function evaluateBadges(progress: Progress): string[] {
   grant('serie-7', progress.streak >= 7)
   grant('mi-parcours', completedCount >= Math.ceil(LESSONS.length / 2))
   grant('dragon-vaincu', !!progress.completedLessons['boss-1'])
+  grant('createur-de-jeux', !!progress.completedLessons['jeu-6'])
   grant('maitre-python', completedCount >= LESSONS.length)
 
   return newly
