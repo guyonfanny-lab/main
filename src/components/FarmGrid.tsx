@@ -3,12 +3,13 @@ import type { FarmFrame } from '../types'
 
 interface FarmGridProps {
   frames: FarmFrame[]
+  characterEmoji?: string
 }
 
 const CELL_SIZE = 44
 const STEP_MS = 320
 
-export default function FarmGrid({ frames }: FarmGridProps) {
+export default function FarmGrid({ frames, characterEmoji = '🚜' }: FarmGridProps) {
   const [frameIndex, setFrameIndex] = useState(0)
 
   useEffect(() => {
@@ -48,12 +49,14 @@ export default function FarmGrid({ frames }: FarmGridProps) {
                     className="inline-block"
                     style={{ transform: `rotate(${frame.tractorFacing}deg)` }}
                   >
-                    🚜
+                    {characterEmoji}
                   </span>
                 ) : cell === 'recolte' ? (
                   '🌾'
                 ) : cell === 'rocher' ? (
                   '🪨'
+                ) : cell === 'arrivee' ? (
+                  '🏁'
                 ) : (
                   ''
                 )}

@@ -1101,6 +1101,240 @@ const fermeProject: Project = {
   ],
 }
 
+// ============================================================
+// PROJET 9 — Le Labyrinthe (Débutant/Intermédiaire, réutilise le moteur grille)
+// ============================================================
+const labyrintheProject: Project = {
+  id: 'labyrinthe',
+  title: 'Le Labyrinthe',
+  emoji: '🤖',
+  description: 'Guide un robot jusqu\'à la sortie en évitant les murs.',
+  difficulty: 'Intermédiaire',
+  color: 'from-violet-500 to-indigo-600',
+  steps: [
+    {
+      id: 'labyrinthe-1',
+      projectId: 'labyrinthe',
+      title: 'Premiers pas',
+      emoji: '🤖',
+      xp: 15,
+      intro:
+        "Un petit robot doit atteindre la sortie (🏁) d'un labyrinthe. Les mêmes commandes que le tracteur (deplacer, pivoter_droite, pivoter_gauche) marchent aussi pour lui !",
+      task: 'La sortie est 3 cases plus loin, en ligne droite. Fais avancer le robot jusqu\'à elle.',
+      starterCode: '# Ton code ici\n',
+      farmConfig: { width: 4, height: 1, cells: [['vide', 'vide', 'vide', 'arrivee']], startX: 0, startY: 0, startFacing: 90 },
+      characterEmoji: '🤖',
+      hints: ['deplacer()\ndeplacer()\ndeplacer()'],
+      check: (_stdout, _get, _commands, frames) =>
+        tractorAt(frames, 3, 0)
+          ? ok('Sortie atteinte, premier labyrinthe réussi ! 🏁')
+          : fail('Le robot doit atteindre la case (3, 0).'),
+    },
+    {
+      id: 'labyrinthe-2',
+      projectId: 'labyrinthe',
+      title: 'Un mur sur la route',
+      emoji: '🧱',
+      xp: 20,
+      intro:
+        "Un mur (🪨) bloque le passage direct. Contourne-le par la ligne du dessous, comme tu sais déjà faire.",
+      task: 'Un mur bloque la case (1, 0). Atteins la sortie en (2, 0) en passant par la ligne 1.',
+      starterCode: '# Ton code ici\n',
+      farmConfig: {
+        width: 3,
+        height: 2,
+        cells: [
+          ['vide', 'rocher', 'arrivee'],
+          ['vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      characterEmoji: '🤖',
+      hints: [
+        'Descends, avance de deux cases, remonte.',
+        'pivoter_droite()\ndeplacer()\npivoter_gauche()\ndeplacer()\ndeplacer()\npivoter_gauche()\ndeplacer()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        tractorAt(frames, 2, 0)
+          ? ok('Mur contourné, robot en sécurité ! 🧱🤖')
+          : fail('Le robot doit atteindre la case (2, 0) sans passer par le mur.'),
+    },
+    {
+      id: 'labyrinthe-3',
+      projectId: 'labyrinthe',
+      title: 'Un vrai dédale',
+      emoji: '🌀',
+      xp: 30,
+      intro: "Un labyrinthe plus grand, avec plusieurs virages. Combine tout ce que tu sais pour t'en sortir.",
+      task: "Trouve le chemin jusqu'à la sortie, en bas à droite du labyrinthe.",
+      starterCode: '# Ton code ici\n',
+      farmConfig: {
+        width: 4,
+        height: 3,
+        cells: [
+          ['vide', 'vide', 'vide', 'rocher'],
+          ['rocher', 'rocher', 'vide', 'vide'],
+          ['vide', 'vide', 'vide', 'arrivee'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      characterEmoji: '🤖',
+      hints: [
+        "Avance jusqu'au mur, descends deux fois en restant dans le couloir central, puis file vers la sortie.",
+        'deplacer()\ndeplacer()\npivoter_droite()\ndeplacer()\ndeplacer()\npivoter_gauche()\ndeplacer()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        tractorAt(frames, 3, 2)
+          ? ok('Dédale résolu comme un pro ! 🌀🏁')
+          : fail('Le robot doit atteindre la sortie en (3, 2).'),
+    },
+    {
+      id: 'labyrinthe-4',
+      projectId: 'labyrinthe',
+      title: 'Le robot qui réfléchit',
+      emoji: '🧠',
+      xp: 40,
+      intro:
+        "Plutôt que de mémoriser un chemin, un robot intelligent utilise case_libre() pour décider tout seul : il avance tant que c'est possible, et tourne à droite dès qu'il est bloqué.",
+      task:
+        "Complète `avancer_intelligent()` : si case_libre() est vrai, avance ; sinon, tourne à droite puis avance. Appelle-la 4 fois pour atteindre la sortie, sans jamais connaître le labyrinthe à l'avance.",
+      starterCode: 'def avancer_intelligent():\n    # complète ici\n    pass\n\nfor _ in range(4):\n    avancer_intelligent()\n',
+      farmConfig: {
+        width: 3,
+        height: 3,
+        cells: [
+          ['vide', 'vide', 'vide'],
+          ['vide', 'vide', 'vide'],
+          ['vide', 'vide', 'arrivee'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      characterEmoji: '🧠',
+      hints: [
+        'if case_libre():\n        deplacer()\n    else:\n        pivoter_droite()\n        deplacer()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        tractorAt(frames, 2, 2)
+          ? ok("Un robot qui s'adapte tout seul, sans plan préétabli. Bravo ! 🧠🏁")
+          : fail('Le robot doit atteindre la sortie en (2, 2) en utilisant case_libre().'),
+    },
+  ],
+}
+
+// ============================================================
+// PROJET 10 — Motifs en spirale (Débutant/Intermédiaire, réutilise la tortue)
+// ============================================================
+const VIOLET_HEX = '#a855f7'
+const ROUGE_HEX = '#ef4444'
+
+const spiraleProject: Project = {
+  id: 'spirale',
+  title: 'Motifs en spirale',
+  emoji: '🌀',
+  description: 'Dessine des spirales et des motifs colorés avec la tortue.',
+  difficulty: 'Débutant',
+  color: 'from-pink-400 to-rose-500',
+  steps: [
+    {
+      id: 'spirale-1',
+      projectId: 'spirale',
+      title: 'Grandir à chaque tour',
+      emoji: '📈',
+      xp: 20,
+      intro:
+        "Une variable peut grandir à chaque tour de boucle. En augmentant la distance à chaque pas tout en tournant d'un angle fixe, on dessine une spirale.",
+      task:
+        'La variable `distance = 10` existe. Avec une boucle de 20 tours, à chaque tour : avance de distance, tourne à droite de 30°, puis augmente distance de 5.',
+      starterCode: 'distance = 10\n\n# Ton code ici\n',
+      visual: true,
+      hints: ['for _ in range(20):\n    avancer(distance)\n    tourner_droite(30)\n    distance = distance + 5'],
+      check: (_stdout, _get, commands) => {
+        const ok1 = commands.length === 20
+        const firstOk = ok1 && Math.abs(segmentLength(commands[0]) - 10) <= 3
+        const lastOk = ok1 && Math.abs(segmentLength(commands[19]) - 105) <= 6
+        return ok1 && firstOk && lastOk
+          ? ok('Une belle spirale qui grandit ! 📈🌀')
+          : fail('Il faut 20 traits, en commençant à 10 pixels et en augmentant de 5 à chaque tour.')
+      },
+    },
+    {
+      id: 'spirale-2',
+      projectId: 'spirale',
+      title: 'Spirale carrée',
+      emoji: '⬜',
+      xp: 20,
+      intro: "Avec un angle de 90° au lieu de 30°, la spirale devient carrée !",
+      task: 'Avec `distance = 5`, répète 15 fois : avance de distance, tourne à droite de 90°, augmente distance de 4.',
+      starterCode: 'distance = 5\n\n# Ton code ici\n',
+      visual: true,
+      hints: ['for _ in range(15):\n    avancer(distance)\n    tourner_droite(90)\n    distance = distance + 4'],
+      check: (_stdout, _get, commands) => {
+        const ok1 = commands.length === 15
+        const firstOk = ok1 && Math.abs(segmentLength(commands[0]) - 5) <= 2
+        const lastOk = ok1 && Math.abs(segmentLength(commands[14]) - 61) <= 6
+        return ok1 && firstOk && lastOk
+          ? ok('Une spirale carrée du plus bel effet ! ⬜🌀')
+          : fail('Il faut 15 traits, en commençant à 5 pixels et en augmentant de 4 à chaque tour.')
+      },
+    },
+    {
+      id: 'spirale-3',
+      projectId: 'spirale',
+      title: 'Couleurs changeantes',
+      emoji: '🌈',
+      xp: 25,
+      intro:
+        "Change de couleur à chaque tour pour un effet arc-en-ciel ! couleurs[i % len(couleurs)] pioche dans la liste en boucle.",
+      task:
+        'La liste `couleurs = ["rouge", "orange", "jaune", "vert", "bleu", "violet"]` existe. Dessine 12 côtés de 40 pixels (angle 144°), en changeant de couleur à chaque tour avec couleurs[i % len(couleurs)].',
+      starterCode: 'couleurs = ["rouge", "orange", "jaune", "vert", "bleu", "violet"]\n\n# Ton code ici\n',
+      visual: true,
+      hints: [
+        'for i in range(12):\n    couleur(couleurs[i % len(couleurs)])\n    avancer(40)\n    tourner_droite(144)',
+      ],
+      check: (_stdout, _get, commands) => {
+        const ok1 = commands.length === 12 && allSegmentsLength(commands, 40)
+        const colorsOk =
+          ok1 && commands[0].color.toLowerCase() === ROUGE_HEX && commands[6].color.toLowerCase() === ROUGE_HEX
+        return ok1 && colorsOk
+          ? ok('Un motif arc-en-ciel éclatant ! 🌈✨')
+          : fail('Il faut 12 traits de 40 pixels, avec la couleur qui boucle sur la liste couleurs.')
+      },
+    },
+    {
+      id: 'spirale-4',
+      projectId: 'spirale',
+      title: 'Ta fonction spirale',
+      emoji: '🎨',
+      xp: 35,
+      intro:
+        "Transforme tout ça en fonction réutilisable qui dessine une spirale de n'importe quelle taille, dans la couleur de ton choix.",
+      task:
+        'Complète `dessiner_spirale(tours, angle, distance_depart, augmentation)`. Teste avec couleur("violet") puis dessiner_spirale(24, 40, 5, 3).',
+      starterCode:
+        'def dessiner_spirale(tours, angle, distance_depart, augmentation):\n    # complète ici\n    pass\n\ncouleur("violet")\ndessiner_spirale(24, 40, 5, 3)\n',
+      visual: true,
+      hints: [
+        'distance = distance_depart\n    for _ in range(tours):\n        avancer(distance)\n        tourner_droite(angle)\n        distance = distance + augmentation',
+      ],
+      check: (_stdout, _get, commands) => {
+        const ok1 = commands.length === 24 && allSegmentsColor(commands, VIOLET_HEX)
+        const firstOk = ok1 && Math.abs(segmentLength(commands[0]) - 5) <= 2
+        const lastOk = ok1 && Math.abs(segmentLength(commands[23]) - 74) <= 8
+        return ok1 && firstOk && lastOk
+          ? ok('Ta machine à spirales est prête, à toi les motifs infinis ! 🎨🌀')
+          : fail('dessiner_spirale(24, 40, 5, 3) doit tracer 24 traits violets, en grandissant de 5 à 74 pixels.')
+      },
+    },
+  ],
+}
+
 export const PROJECTS: Project[] = [
   devineProject,
   emojiProject,
@@ -1110,4 +1344,6 @@ export const PROJECTS: Project[] = [
   fermeProject,
   histoireProject,
   quizProject,
+  labyrintheProject,
+  spiraleProject,
 ]

@@ -178,7 +178,9 @@ export default function LessonScreen({
       </button>
 
       {(lesson.visual || drawCommands.length > 0) && <TurtleCanvas commands={drawCommands} />}
-      {lesson.farmConfig && <FarmGrid key={runCount} frames={farmFrames} />}
+      {lesson.farmConfig && (
+        <FarmGrid key={runCount} frames={farmFrames} characterEmoji={lesson.characterEmoji} />
+      )}
 
       {output && (
         <div className="mb-3 rounded-xl bg-black/40 p-3 font-mono text-xs text-white/80">

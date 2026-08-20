@@ -13,7 +13,7 @@ export interface DrawCommand {
   width: number
 }
 
-export type FarmCell = 'vide' | 'recolte' | 'rocher'
+export type FarmCell = 'vide' | 'recolte' | 'rocher' | 'arrivee'
 
 /** One frame of the tractor grid, snapshotted after every farm action for a step-by-step replay. */
 export interface FarmFrame {
@@ -49,6 +49,8 @@ export interface Exercise {
   visual?: boolean
   /** Initial tractor-grid layout, if this exercise controls the farm tractor instead of (or alongside) the turtle. */
   farmConfig?: FarmConfig
+  /** Emoji shown for the grid character, when farmConfig is set. Defaults to the tractor. */
+  characterEmoji?: string
   /** Runs after the user's code executes; inspects stdout, globals, turtle drawing, and the farm grid's final frame. */
   check: (
     stdout: string,

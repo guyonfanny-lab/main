@@ -88,6 +88,18 @@ export const BADGES: Badge[] = [
     description: 'Termine le projet Le Fermier Remplacé.',
   },
   {
+    id: 'explorateur',
+    title: 'Explorateur·rice',
+    emoji: '🤖',
+    description: 'Termine le projet Le Labyrinthe.',
+  },
+  {
+    id: 'artiste-des-spirales',
+    title: 'Artiste des spirales',
+    emoji: '🌀',
+    description: 'Termine le projet Motifs en spirale.',
+  },
+  {
     id: 'maitre-python',
     title: 'Maître·sse Python',
     emoji: '👑',
@@ -127,6 +139,8 @@ export function evaluateBadges(progress: Progress): string[] {
   grant('oracle', !!progress.completedLessons['quiz-5'])
   grant('artiste', !!progress.completedLessons['tortue-6'])
   grant('fermier-remplace', !!progress.completedLessons['ferme-12'])
+  grant('explorateur', !!progress.completedLessons['labyrinthe-4'])
+  grant('artiste-des-spirales', !!progress.completedLessons['spirale-4'])
   grant('maitre-python', completedCount >= LESSONS.length)
   grant(
     'grand-createur',
