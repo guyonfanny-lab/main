@@ -5,6 +5,7 @@ interface SuccessModalProps {
   xpGained: number
   newBadgeIds: string[]
   isLastLesson: boolean
+  finaleHeading: string
   onContinue: () => void
 }
 
@@ -13,6 +14,7 @@ export default function SuccessModal({
   xpGained,
   newBadgeIds,
   isLastLesson,
+  finaleHeading,
   onContinue,
 }: SuccessModalProps) {
   const newBadges = BADGES.filter((b) => newBadgeIds.includes(b.id))
@@ -22,7 +24,7 @@ export default function SuccessModal({
       <div className="animate-pop-in w-full max-w-md rounded-t-3xl bg-[#15151f] p-6 pb-[calc(24px+var(--safe-bottom))] shadow-2xl sm:rounded-3xl">
         <div className="mb-3 text-center text-5xl">{isLastLesson ? '🏆' : '🎉'}</div>
         <h2 className="mb-1 text-center text-lg font-extrabold text-white">
-          {isLastLesson ? 'PyQuest terminée !' : 'Bravo, leçon réussie !'}
+          {isLastLesson ? finaleHeading : 'Bravo, leçon réussie !'}
         </h2>
         <p className="mb-4 text-center text-sm text-white/60">{message}</p>
 

@@ -2,18 +2,22 @@ import { useEffect, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { python } from '@codemirror/lang-python'
 import confetti from 'canvas-confetti'
-import type { Lesson } from '../types'
+import type { Exercise } from '../types'
 import { getPyodide, runPython } from '../lib/pyodide'
 import { playError, playSuccess, playTap } from '../lib/sound'
 import type { CompleteLessonResult } from '../lib/storage'
-import { LESSONS } from '../data/curriculum'
+import { loadSavedCode, saveCode } from '../lib/codeStorage'
 import SuccessModal from './SuccessModal'
 
 interface LessonScreenProps {
-  lesson: Lesson
+  lesson: Exercise
+  /** Ordered list this exercise belongs to (the course, or one project's steps), used to find "what's next". */
+  siblings: Exercise[]
+  backLabel: string
+  finaleHeading: string
   soundOn: boolean
   onBack: () => void
-  onComplete: (lesson: Lesson) => CompleteLessonResult
+  onComplete: (lesson: Exercise) => CompleteLessonResult
   onNextLesson: (lessonId: string) => void
 }
 
@@ -28,12 +32,15 @@ function fireConfetti() {
 
 export default function LessonScreen({
   lesson,
+  siblings,
+  backLabel,
+  finaleHeading,
   soundOn,
   onBack,
   onComplete,
   onNextLesson,
 }: LessonScreenProps) {
-  const [code, setCode] = useState(lesson.starterCode)
+  const [code, setCode] = useState(() => loadSavedCode(lesson.id) ?? lesson.starterCode)
   const [running, setRunning] = useState(false)
   const [pyodideReady, setPyodideReady] = useState(false)
   const [output, setOutput] = useState<{ stdout: string; error: string | null } | null>(null)
@@ -50,6 +57,11 @@ export default function LessonScreen({
       .then(() => setPyodideReady(true))
       .catch(() => setPyodideReady(false))
   }, [])
+
+  function handleCodeChange(value: string) {
+    setCode(value)
+    saveCode(lesson.id, value)
+  }
 
   async function handleRun() {
     setRunning(true)
@@ -84,8 +96,8 @@ export default function LessonScreen({
     }
   }
 
-  const currentIndex = LESSONS.findIndex((l) => l.id === lesson.id)
-  const nextLesson = LESSONS[currentIndex + 1]
+  const currentIndex = siblings.findIndex((l) => l.id === lesson.id)
+  const nextLesson = siblings[currentIndex + 1]
   const isLastLesson = !nextLesson
 
   return (
@@ -101,7 +113,7 @@ export default function LessonScreen({
         onClick={onBack}
         className="mb-3 flex w-fit items-center gap-1 text-sm font-medium text-white/50 active:text-white/80"
       >
-        ← Retour au parcours
+        ← {backLabel}
       </button>
 
       <div className="mb-4 flex items-center gap-3">
@@ -126,7 +138,7 @@ export default function LessonScreen({
           height="200px"
           theme="dark"
           extensions={[python()]}
-          onChange={(value) => setCode(value)}
+          onChange={handleCodeChange}
           basicSetup={{ autocompletion: false }}
         />
       </div>
@@ -191,6 +203,7 @@ export default function LessonScreen({
           xpGained={successData.xpGained}
           newBadgeIds={successData.newlyEarnedBadges}
           isLastLesson={isLastLesson}
+          finaleHeading={finaleHeading}
           onContinue={() => {
             if (nextLesson) {
               onNextLesson(nextLesson.id)

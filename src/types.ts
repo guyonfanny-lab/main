@@ -3,9 +3,9 @@ export interface CheckResult {
   message: string
 }
 
-export interface Lesson {
+/** Shared shape for anything the learner codes against: a course lesson or a project step. */
+export interface Exercise {
   id: string
-  moduleId: string
   title: string
   emoji: string
   xp: number
@@ -19,12 +19,32 @@ export interface Lesson {
   check: (stdout: string, get: (name: string) => unknown) => CheckResult
 }
 
+export interface Lesson extends Exercise {
+  moduleId: string
+}
+
 export interface Module {
   id: string
   title: string
   emoji: string
   description: string
   color: string
+}
+
+export interface ProjectStep extends Exercise {
+  projectId: string
+}
+
+export type Difficulty = 'Débutant' | 'Intermédiaire' | 'Avancé'
+
+export interface Project {
+  id: string
+  title: string
+  emoji: string
+  description: string
+  difficulty: Difficulty
+  color: string
+  steps: ProjectStep[]
 }
 
 export interface Badge {

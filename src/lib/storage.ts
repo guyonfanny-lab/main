@@ -1,5 +1,6 @@
 import type { Progress } from '../types'
 import { evaluateBadges } from '../data/badges'
+import { clearAllSavedCode } from './codeStorage'
 
 const STORAGE_KEY = 'pyquest-progress-v1'
 
@@ -94,5 +95,6 @@ export function toggleSound(progress: Progress): Progress {
 
 export function resetProgress(): Progress {
   saveProgress(DEFAULT_PROGRESS)
+  clearAllSavedCode()
   return { ...DEFAULT_PROGRESS }
 }

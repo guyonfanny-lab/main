@@ -1,4 +1,4 @@
-export type Tab = 'path' | 'profile'
+export type Tab = 'path' | 'projects' | 'profile'
 
 interface BottomNavProps {
   active: Tab
@@ -7,6 +7,7 @@ interface BottomNavProps {
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'path', label: 'Parcours', emoji: '🗺️' },
+  { id: 'projects', label: 'Projets', emoji: '🛠️' },
   { id: 'profile', label: 'Profil', emoji: '🧑‍🚀' },
 ]
 
