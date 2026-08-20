@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { python } from '@codemirror/lang-python'
 import confetti from 'canvas-confetti'
-import type { Exercise } from '../types'
+import type { DrawCommand, Exercise } from '../types'
 import { getPyodide, runPython } from '../lib/pyodide'
 import { playError, playSuccess, playTap } from '../lib/sound'
 import type { CompleteLessonResult } from '../lib/storage'
 import { loadSavedCode, saveCode } from '../lib/codeStorage'
 import SuccessModal from './SuccessModal'
+import TurtleCanvas from './TurtleCanvas'
 
 interface LessonScreenProps {
   lesson: Exercise
@@ -44,6 +45,7 @@ export default function LessonScreen({
   const [running, setRunning] = useState(false)
   const [pyodideReady, setPyodideReady] = useState(false)
   const [output, setOutput] = useState<{ stdout: string; error: string | null } | null>(null)
+  const [drawCommands, setDrawCommands] = useState<DrawCommand[]>([])
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null)
   const [hintsShown, setHintsShown] = useState(0)
   const [successData, setSuccessData] = useState<CompleteLessonResult | null>(null)
@@ -70,6 +72,7 @@ export default function LessonScreen({
     try {
       const result = await runPython(code)
       setOutput({ stdout: result.stdout, error: result.error })
+      setDrawCommands(result.commands)
       setPyodideReady(true)
 
       if (result.error) {
@@ -78,7 +81,7 @@ export default function LessonScreen({
         return
       }
 
-      const check = lesson.check(result.stdout, result.get)
+      const check = lesson.check(result.stdout, result.get, result.commands)
       setFeedback(check)
 
       if (check.ok) {
@@ -151,6 +154,8 @@ export default function LessonScreen({
       >
         {running ? (pyodideReady ? 'Ça tourne...' : '🐍 Préparation de Python...') : '▶ Lancer le code'}
       </button>
+
+      {drawCommands.length > 0 && <TurtleCanvas commands={drawCommands} />}
 
       {output && (
         <div className="mb-3 rounded-xl bg-black/40 p-3 font-mono text-xs text-white/80">

@@ -3,6 +3,16 @@ export interface CheckResult {
   message: string
 }
 
+/** One line segment drawn by the turtle-graphics bridge (see lib/pyodide.ts). */
+export interface DrawCommand {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  color: string
+  width: number
+}
+
 /** Shared shape for anything the learner codes against: a course lesson or a project step. */
 export interface Exercise {
   id: string
@@ -15,8 +25,8 @@ export interface Exercise {
   task: string
   starterCode: string
   hints: string[]
-  /** Runs after the user's code executes; inspects stdout + globals. */
-  check: (stdout: string, get: (name: string) => unknown) => CheckResult
+  /** Runs after the user's code executes; inspects stdout, globals, and anything drawn by the turtle. */
+  check: (stdout: string, get: (name: string) => unknown, commands: DrawCommand[]) => CheckResult
 }
 
 export interface Lesson extends Exercise {

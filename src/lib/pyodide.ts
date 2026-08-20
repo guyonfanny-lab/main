@@ -2,6 +2,7 @@
 // so PyQuest has no external CDN dependency and can run fully offline once
 // the assets are cached by the service worker. Runs user code with stdout
 // captured, so lessons can check what the learner's program prints.
+import type { DrawCommand } from '../types'
 
 const PYODIDE_BASE = `${import.meta.env.BASE_URL}pyodide/`
 
@@ -10,7 +11,7 @@ interface PyodideInterface {
   runPythonAsync: (code: string) => Promise<unknown>
   setStdout: (options: { batched: (msg: string) => void }) => void
   setStderr: (options: { batched: (msg: string) => void }) => void
-  globals: { get: (name: string) => unknown }
+  globals: { get: (name: string) => unknown; set: (name: string, value: unknown) => void }
 }
 
 declare global {
@@ -37,6 +38,83 @@ function loadScript(src: string): Promise<void> {
   })
 }
 
+// ---------------------------------------------------------------------------
+// Turtle graphics bridge: a handful of French-named drawing primitives that
+// get injected into Python's global namespace, so lessons can draw on a
+// canvas instead of only printing text. State lives here in JS (simpler and
+// faster than round-tripping through Python) and resets before every run.
+// ---------------------------------------------------------------------------
+const COLOR_NAMES: Record<string, string> = {
+  rouge: '#ef4444',
+  bleu: '#3b82f6',
+  vert: '#22c55e',
+  jaune: '#eab308',
+  orange: '#f97316',
+  violet: '#a855f7',
+  rose: '#ec4899',
+  noir: '#111827',
+  blanc: '#f9fafb',
+  marron: '#92400e',
+  gris: '#6b7280',
+  cyan: '#06b6d4',
+}
+
+const turtle = {
+  x: 0,
+  y: 0,
+  angle: 0, // degrees, 0 = facing up on screen; positive = clockwise (right turns)
+  penDown: true,
+  color: '#111827',
+  width: 3,
+  commands: [] as DrawCommand[],
+}
+
+function resetTurtle() {
+  turtle.x = 0
+  turtle.y = 0
+  turtle.angle = 0
+  turtle.penDown = true
+  turtle.color = '#111827'
+  turtle.width = 3
+  turtle.commands = []
+}
+
+function moveForward(distance: number) {
+  const rad = (turtle.angle * Math.PI) / 180
+  const dx = Math.sin(rad) * distance
+  const dy = -Math.cos(rad) * distance
+  const x2 = turtle.x + dx
+  const y2 = turtle.y + dy
+  if (turtle.penDown) {
+    turtle.commands.push({ x1: turtle.x, y1: turtle.y, x2, y2, color: turtle.color, width: turtle.width })
+  }
+  turtle.x = x2
+  turtle.y = y2
+}
+
+function registerTurtleApi(pyodide: PyodideInterface) {
+  pyodide.globals.set('avancer', (distance: number) => moveForward(distance))
+  pyodide.globals.set('reculer', (distance: number) => moveForward(-distance))
+  pyodide.globals.set('tourner_droite', (angle: number) => {
+    turtle.angle += angle
+  })
+  pyodide.globals.set('tourner_gauche', (angle: number) => {
+    turtle.angle -= angle
+  })
+  pyodide.globals.set('leve_stylo', () => {
+    turtle.penDown = false
+  })
+  pyodide.globals.set('baisse_stylo', () => {
+    turtle.penDown = true
+  })
+  pyodide.globals.set('epaisseur', (n: number) => {
+    turtle.width = n
+  })
+  pyodide.globals.set('couleur', (nom: string) => {
+    turtle.color = COLOR_NAMES[nom] ?? nom
+  })
+}
+
 export function getPyodide(): Promise<PyodideInterface> {
   if (!pyodidePromise) {
     pyodidePromise = (async () => {
@@ -45,6 +123,7 @@ export function getPyodide(): Promise<PyodideInterface> {
         throw new Error("L'interpréteur Python n'a pas pu démarrer.")
       }
       const pyodide = await window.loadPyodide({ indexURL: PYODIDE_BASE })
+      registerTurtleApi(pyodide)
       return pyodide
     })()
   }
@@ -55,6 +134,7 @@ export interface RunResult {
   stdout: string
   error: string | null
   get: (name: string) => unknown
+  commands: DrawCommand[]
 }
 
 function pyToJs(value: unknown): unknown {
@@ -80,6 +160,7 @@ export async function runPython(code: string): Promise<RunResult> {
   let buffer: string[] = []
   pyodide.setStdout({ batched: (msg: string) => buffer.push(msg) })
   pyodide.setStderr({ batched: () => {} })
+  resetTurtle()
 
   let error: string | null = null
   try {
@@ -91,6 +172,7 @@ export async function runPython(code: string): Promise<RunResult> {
   return {
     stdout: buffer.join('\n'),
     error,
+    commands: [...turtle.commands],
     get: (name: string) => {
       try {
         return pyToJs(pyodide.globals.get(name))

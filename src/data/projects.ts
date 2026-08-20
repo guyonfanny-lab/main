@@ -1,4 +1,5 @@
 import type { CheckResult, Project } from '../types'
+import { allSegmentsColor, allSegmentsLength, angleBetween, pathCloses, segmentLength } from '../lib/turtleChecks'
 
 const lines = (s: string) =>
   s
@@ -643,11 +644,137 @@ const quizProject: Project = {
   ],
 }
 
+// ============================================================
+// PROJET 7 — Tortue magique (Intermédiaire) — dessin visuel
+// ============================================================
+const tortueProject: Project = {
+  id: 'tortue',
+  title: 'Tortue magique',
+  emoji: '🐢',
+  description: 'Dessine des formes et des motifs avec du code, comme un pinceau magique.',
+  difficulty: 'Intermédiaire',
+  color: 'from-lime-400 to-emerald-500',
+  steps: [
+    {
+      id: 'tortue-1',
+      projectId: 'tortue',
+      title: 'Réveille la tortue',
+      emoji: '🐢',
+      xp: 10,
+      intro:
+        "Une tortue invisible se tient au centre de l'écran, prête à dessiner. avancer(distance) la fait avancer en traçant une ligne derrière elle. Regarde le dessin apparaître au-dessus de la console après avoir lancé ton code !",
+      task: 'Fais avancer la tortue de 80 pixels avec avancer(80).',
+      starterCode: '# Ton code ici\n',
+      hints: ['avancer(80)'],
+      check: (_stdout, _get, commands) => {
+        const ok1 = commands.length === 1 && Math.abs(segmentLength(commands[0]) - 80) <= 4
+        return ok1
+          ? { ok: true, message: 'La tortue avance, ton premier trait est tracé ! 🐢' }
+          : { ok: false, message: 'Utilise avancer(80) — un seul trait de 80 pixels.' }
+      },
+    },
+    {
+      id: 'tortue-2',
+      projectId: 'tortue',
+      title: 'Tourner',
+      emoji: '↩️',
+      xp: 15,
+      intro: 'tourner_droite(angle) fait pivoter la tortue de "angle" degrés vers la droite, sans dessiner.',
+      task: 'Avance de 60, tourne à droite de 90 degrés, puis avance encore de 60. Tu dois voir un angle droit se dessiner.',
+      starterCode: '# Ton code ici\n',
+      hints: ['avancer(60)\ntourner_droite(90)\navancer(60)'],
+      check: (_stdout, _get, commands) => {
+        const lengthsOk = allSegmentsLength(commands, 60)
+        const rightAngle = commands.length === 2 && Math.abs(angleBetween(commands[0], commands[1]) - 90) <= 5
+        return commands.length === 2 && lengthsOk && rightAngle
+          ? { ok: true, message: 'Un bel angle droit ! ↩️' }
+          : { ok: false, message: 'Il faut deux traits de 60 pixels formant un angle droit (90°).' }
+      },
+    },
+    {
+      id: 'tortue-3',
+      projectId: 'tortue',
+      title: 'Dessine un carré',
+      emoji: '⬛',
+      xp: 20,
+      intro: 'En répétant 4 fois "avancer + tourner de 90°" avec une boucle, on ferme complètement un carré !',
+      task: 'Utilise une boucle for pour dessiner un carré de côté 70 (répète 4 fois : avancer(70) puis tourner_droite(90)).',
+      starterCode: '# Ton code ici\n',
+      hints: ['for _ in range(4):\n    avancer(70)\n    tourner_droite(90)'],
+      check: (_stdout, _get, commands) => {
+        const ok = commands.length === 4 && allSegmentsLength(commands, 70) && pathCloses(commands)
+        return ok
+          ? { ok: true, message: 'Un carré parfaitement fermé ! ⬛' }
+          : { ok: false, message: 'Il faut 4 côtés de 70 pixels qui referment la forme (un carré complet).' }
+      },
+    },
+    {
+      id: 'tortue-4',
+      projectId: 'tortue',
+      title: 'Ajoute de la couleur',
+      emoji: '🎨',
+      xp: 20,
+      intro: 'couleur("violet") change la couleur du trait. Essaie une autre couleur pour ton carré magique !',
+      task: 'Dessine un carré de côté 70 (comme avant) mais en couleur "violet" (utilise couleur("violet") avant de dessiner).',
+      starterCode: '# Ton code ici\n',
+      hints: ['couleur("violet")\nfor _ in range(4):\n    avancer(70)\n    tourner_droite(90)'],
+      check: (_stdout, _get, commands) => {
+        const ok =
+          commands.length === 4 &&
+          allSegmentsLength(commands, 70) &&
+          pathCloses(commands) &&
+          allSegmentsColor(commands, '#a855f7')
+        return ok
+          ? { ok: true, message: 'Un carré violet du plus bel effet ! 🎨' }
+          : { ok: false, message: 'Il faut un carré (4 côtés de 70) entièrement en couleur "violet".' }
+      },
+    },
+    {
+      id: 'tortue-5',
+      projectId: 'tortue',
+      title: 'Motif en étoile',
+      emoji: '✨',
+      xp: 25,
+      intro:
+        "En changeant l'angle de rotation, une simple boucle peut dessiner des étoiles magnifiques. Avec un angle de 144°, la forme devient une étoile à 5 branches !",
+      task: 'Dessine une étoile à 5 branches : répète 5 fois avancer(100) puis tourner_droite(144).',
+      starterCode: '# Ton code ici\n',
+      hints: ['for _ in range(5):\n    avancer(100)\n    tourner_droite(144)'],
+      check: (_stdout, _get, commands) => {
+        const ok = commands.length === 5 && allSegmentsLength(commands, 100) && pathCloses(commands)
+        return ok
+          ? { ok: true, message: 'Une étoile magique à 5 branches ! ✨' }
+          : { ok: false, message: 'Il faut 5 traits de 100 pixels avec un angle de 144° (une étoile complète).' }
+      },
+    },
+    {
+      id: 'tortue-6',
+      projectId: 'tortue',
+      title: 'Ta fonction magique',
+      emoji: '🌀',
+      xp: 35,
+      intro:
+        "Transforme ta boucle en fonction réutilisable qui dessine n'importe quel polygone régulier (triangle, carré, pentagone, étoile...) selon les paramètres qu'on lui donne.",
+      task:
+        'Complète `dessiner_polygone(nb_cotes, longueur, angle)` : elle répète nb_cotes fois avancer(longueur) puis tourner_droite(angle). Teste avec dessiner_polygone(6, 50, 60) pour dessiner un hexagone.',
+      starterCode: 'def dessiner_polygone(nb_cotes, longueur, angle):\n    # complète ici\n    pass\n\ndessiner_polygone(6, 50, 60)\n',
+      hints: ['for _ in range(nb_cotes):\n        avancer(longueur)\n        tourner_droite(angle)'],
+      check: (_stdout, _get, commands) => {
+        const ok = commands.length === 6 && allSegmentsLength(commands, 50) && pathCloses(commands)
+        return ok
+          ? { ok: true, message: 'Ta fonction magique dessine un hexagone parfait ! 🌀🐢' }
+          : { ok: false, message: 'dessiner_polygone(6, 50, 60) doit tracer un hexagone fermé à 6 côtés de 50 pixels.' }
+      },
+    },
+  ],
+}
+
 export const PROJECTS: Project[] = [
   devineProject,
   emojiProject,
   combatProject,
   cesarProject,
+  tortueProject,
   histoireProject,
   quizProject,
 ]

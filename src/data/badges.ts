@@ -76,6 +76,12 @@ export const BADGES: Badge[] = [
     description: 'Termine le projet Quiz de personnalité.',
   },
   {
+    id: 'artiste',
+    title: 'Artiste',
+    emoji: '🐢',
+    description: 'Termine le projet Tortue magique.',
+  },
+  {
     id: 'maitre-python',
     title: 'Maître·sse Python',
     emoji: '👑',
@@ -113,6 +119,7 @@ export function evaluateBadges(progress: Progress): string[] {
   grant('traducteur', !!progress.completedLessons['emoji-4'])
   grant('espion', !!progress.completedLessons['cesar-5'])
   grant('oracle', !!progress.completedLessons['quiz-5'])
+  grant('artiste', !!progress.completedLessons['tortue-6'])
   grant('maitre-python', completedCount >= LESSONS.length)
   grant(
     'grand-createur',
