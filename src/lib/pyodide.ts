@@ -3,7 +3,7 @@
 // the assets are cached by the service worker. Runs user code with stdout
 // captured, so lessons can check what the learner's program prints.
 
-const PYODIDE_BASE = '/pyodide/'
+const PYODIDE_BASE = `${import.meta.env.BASE_URL}pyodide/`
 
 // Minimal shape of the pyodide instance we rely on.
 interface PyodideInterface {
