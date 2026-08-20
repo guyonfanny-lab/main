@@ -1,5 +1,6 @@
 import type { Badge, Progress } from '../types'
 import { LESSONS } from './curriculum'
+import { PROJECTS } from './projects'
 
 export const BADGES: Badge[] = [
   {
@@ -57,10 +58,34 @@ export const BADGES: Badge[] = [
     description: 'Termine le projet Histoires aléatoires.',
   },
   {
+    id: 'traducteur',
+    title: 'Traducteur·rice',
+    emoji: '🐱',
+    description: 'Termine le projet Traducteur emoji.',
+  },
+  {
+    id: 'espion',
+    title: 'Espion·ne',
+    emoji: '🔐',
+    description: 'Termine le projet Message secret.',
+  },
+  {
+    id: 'oracle',
+    title: 'Oracle',
+    emoji: '🧭',
+    description: 'Termine le projet Quiz de personnalité.',
+  },
+  {
     id: 'maitre-python',
     title: 'Maître·sse Python',
     emoji: '👑',
     description: 'Termine toutes les leçons de PyQuest.',
+  },
+  {
+    id: 'grand-createur',
+    title: 'Grand·e créateur·rice',
+    emoji: '🏗️',
+    description: 'Termine tous les projets.',
   },
 ]
 
@@ -85,7 +110,14 @@ export function evaluateBadges(progress: Progress): string[] {
   grant('createur-de-jeux', !!progress.completedLessons['jeu-6'])
   grant('devine-champion', !!progress.completedLessons['devine-4'])
   grant('conteur', !!progress.completedLessons['histoire-5'])
+  grant('traducteur', !!progress.completedLessons['emoji-4'])
+  grant('espion', !!progress.completedLessons['cesar-5'])
+  grant('oracle', !!progress.completedLessons['quiz-5'])
   grant('maitre-python', completedCount >= LESSONS.length)
+  grant(
+    'grand-createur',
+    PROJECTS.every((project) => project.steps.every((step) => !!progress.completedLessons[step.id])),
+  )
 
   return newly
 }

@@ -378,4 +378,276 @@ const histoireProject: Project = {
   ],
 }
 
-export const PROJECTS: Project[] = [devineProject, combatProject, histoireProject]
+// ============================================================
+// PROJET 4 — Traducteur emoji (Débutant)
+// ============================================================
+const EMOJI_DICT_CODE = '{"chat": "🐱", "chien": "🐶", "pizza": "🍕", "fusée": "🚀"}'
+
+const emojiProject: Project = {
+  id: 'emoji',
+  title: 'Traducteur emoji',
+  emoji: '🐱',
+  description: 'Transforme des mots en emojis avec un dictionnaire.',
+  difficulty: 'Débutant',
+  color: 'from-amber-400 to-orange-500',
+  steps: [
+    {
+      id: 'emoji-1',
+      projectId: 'emoji',
+      title: 'Le dictionnaire magique',
+      emoji: '📖',
+      xp: 10,
+      intro: 'Un dictionnaire peut associer un mot à un emoji, comme mots_emoji["chat"] qui renvoie "🐱".',
+      task: `Le dictionnaire \`mots_emoji = ${EMOJI_DICT_CODE}\` existe. Affiche l'emoji correspondant à "pizza".`,
+      starterCode: `mots_emoji = ${EMOJI_DICT_CODE}\n\n# Ton code ici\n`,
+      hints: ['print(mots_emoji["pizza"])'],
+      check: (stdout) =>
+        hasLine(stdout, '🍕') ? ok('Traduction réussie ! 🍕') : fail('Affiche mots_emoji["pizza"].'),
+    },
+    {
+      id: 'emoji-2',
+      projectId: 'emoji',
+      title: 'Mot inconnu',
+      emoji: '❓',
+      xp: 15,
+      intro: "Si un mot n'est pas dans le dictionnaire, .get() évite le plantage en renvoyant une valeur par défaut.",
+      task: `Avec le même dictionnaire mots_emoji, affiche l'emoji pour "licorne" (absent du dictionnaire) en utilisant .get() avec "❓" comme valeur par défaut.`,
+      starterCode: `mots_emoji = ${EMOJI_DICT_CODE}\n\n# Ton code ici\n`,
+      hints: ['print(mots_emoji.get("licorne", "❓"))'],
+      check: (stdout) =>
+        hasLine(stdout, '❓') ? ok('Aucun crash, juste un point d\'interrogation ! ❓') : fail('Affiche mots_emoji.get("licorne", "❓").'),
+    },
+    {
+      id: 'emoji-3',
+      projectId: 'emoji',
+      title: 'Traduis une phrase',
+      emoji: '🧩',
+      xp: 20,
+      intro: 'On peut découper une phrase en mots avec .split(), puis traduire chaque mot un par un.',
+      task:
+        'La variable `phrase = "chat pizza fusée"` existe. Découpe-la en mots, traduis chaque mot avec mots_emoji (utilise .get() avec "❓" par défaut), et affiche chaque emoji sur sa propre ligne.',
+      starterCode: `mots_emoji = ${EMOJI_DICT_CODE}\nphrase = "chat pizza fusée"\n\n# Ton code ici\n`,
+      hints: ['mots = phrase.split()', 'for mot in mots:\n    print(mots_emoji.get(mot, "❓"))'],
+      check: (stdout) => {
+        const ls = lines(stdout)
+        const expected = ['🐱', '🍕', '🚀']
+        const matches = ls.length === expected.length && expected.every((v, i) => ls[i] === v)
+        return matches ? ok('Trois mots, trois emojis ! 🧩') : fail('Il faut afficher 🐱, 🍕 puis 🚀, un par ligne.')
+      },
+    },
+    {
+      id: 'emoji-4',
+      projectId: 'emoji',
+      title: 'La fonction traductrice',
+      emoji: '🛠️',
+      xp: 25,
+      intro: "Transforme tout ça en fonction réutilisable qui traduit n'importe quelle phrase, emojis collés ensemble.",
+      task:
+        'Complète `traduire(phrase, dico)` : elle découpe phrase en mots, traduit chacun (avec .get() et "❓" par défaut), et retourne le tout collé en une seule chaîne (sans espace). Teste avec print(traduire("chien chat fusée", mots_emoji)).',
+      starterCode: `mots_emoji = ${EMOJI_DICT_CODE}\n\ndef traduire(phrase, dico):\n    # complète ici\n    pass\n\nprint(traduire("chien chat fusée", mots_emoji))\n`,
+      hints: [
+        'Utilise une variable resultat = "" puis ajoute chaque traduction dedans au fil de la boucle.',
+        'resultat = resultat + dico.get(mot, "❓")',
+      ],
+      check: (stdout) =>
+        hasLine(stdout, '🐶🐱🚀')
+          ? ok('Ta machine à traduire fonctionne à la perfection ! 🛠️🐱')
+          : fail('traduire("chien chat fusée", mots_emoji) doit afficher 🐶🐱🚀.'),
+    },
+  ],
+}
+
+// ============================================================
+// PROJET 5 — Message secret : chiffrement de César (Intermédiaire)
+// ============================================================
+const cesarProject: Project = {
+  id: 'cesar',
+  title: 'Message secret',
+  emoji: '🔐',
+  description: "Invente ton propre code secret avec le chiffrement de César.",
+  difficulty: 'Intermédiaire',
+  color: 'from-slate-500 to-zinc-700',
+  steps: [
+    {
+      id: 'cesar-1',
+      projectId: 'cesar',
+      title: 'Nombres secrets',
+      emoji: '🔡',
+      xp: 15,
+      intro: 'Chaque lettre a un code numérique caché : ord("a") vaut 97, et chr(97) redonne "a". C\'est la base du chiffrement.',
+      task: 'Affiche ord("a") puis chr(98).',
+      starterCode: '# Ton code ici\n',
+      hints: ['print(ord("a"))', 'print(chr(98))'],
+      check: (stdout) => {
+        const ls = lines(stdout)
+        return ls.includes('97') && ls.includes('b')
+          ? ok('97 et "b" : les codes secrets se dévoilent ! 🔡')
+          : fail('Il faut afficher 97 (ord("a")) puis b (chr(98)).')
+      },
+    },
+    {
+      id: 'cesar-2',
+      projectId: 'cesar',
+      title: 'Décaler une lettre',
+      emoji: '➡️',
+      xp: 15,
+      intro: 'Pour chiffrer une lettre, on décale son code numérique : chr(ord(lettre) + decalage).',
+      task: 'Les variables `lettre = "a"` et `decalage = 3` existent. Calcule et affiche la lettre décalée.',
+      starterCode: 'lettre = "a"\ndecalage = 3\n\n# Ton code ici\n',
+      hints: ['print(chr(ord(lettre) + decalage))'],
+      check: (stdout) => (hasLine(stdout, 'd') ? ok('"a" décalé de 3 devient "d" ! ➡️') : fail('Affiche chr(ord(lettre) + decalage), qui doit valoir "d".')),
+    },
+    {
+      id: 'cesar-3',
+      projectId: 'cesar',
+      title: 'Chiffrer un mot',
+      emoji: '🔐',
+      xp: 20,
+      intro: 'Pour chiffrer un mot entier, décale chaque lettre une par une et recolle le résultat.',
+      task: 'Les variables `mot = "chat"` et `decalage = 1` existent. Chiffre le mot lettre par lettre et affiche le résultat.',
+      starterCode: 'mot = "chat"\ndecalage = 1\n\n# Ton code ici\n',
+      hints: [
+        'resultat = ""',
+        'for c in mot:\n    resultat = resultat + chr(ord(c) + decalage)\nprint(resultat)',
+      ],
+      check: (stdout) => (hasLine(stdout, 'dibu') ? ok('"chat" devient "dibu" ! 🔐') : fail('Le mot chiffré doit être "dibu".')),
+    },
+    {
+      id: 'cesar-4',
+      projectId: 'cesar',
+      title: 'Gère les espaces',
+      emoji: '🕳️',
+      xp: 20,
+      intro: "Un message a des espaces — il ne faut pas les décaler, sinon ils deviennent des caractères bizarres ! Garde-les tels quels.",
+      task:
+        'Les variables `message = "un chat"` et `decalage = 2` existent. Chiffre chaque caractère, SAUF les espaces qui doivent rester des espaces. Affiche le résultat.',
+      starterCode: 'message = "un chat"\ndecalage = 2\n\n# Ton code ici\n',
+      hints: [
+        'for c in message:\n    if c == " ":\n        ...\n    else:\n        ...',
+        'Le résultat attendu est "wp ejcv".',
+      ],
+      check: (stdout) => (hasLine(stdout, 'wp ejcv') ? ok('Les espaces survivent au chiffrement ! 🕳️') : fail('Le résultat doit être "wp ejcv".')),
+    },
+    {
+      id: 'cesar-5',
+      projectId: 'cesar',
+      title: 'Ta machine à messages secrets',
+      emoji: '🔓',
+      xp: 35,
+      intro: 'Transforme tout en fonction réutilisable, capable de chiffrer ET déchiffrer (le déchiffrement, c\'est juste décaler dans l\'autre sens, avec un décalage négatif !).',
+      task:
+        'Complète `chiffrer(message, decalage)` : chiffre chaque lettre (espaces inchangés) et retourne le résultat. Teste avec print(chiffrer("un chat", 2)), puis déchiffre en appelant print(chiffrer("wp ejcv", -2)).',
+      starterCode:
+        'def chiffrer(message, decalage):\n    # complète ici\n    pass\n\nprint(chiffrer("un chat", 2))\nprint(chiffrer("wp ejcv", -2))\n',
+      hints: [
+        'Reprends ta logique de la leçon précédente (espaces inchangés, sinon chr(ord(c) + decalage)), à l\'intérieur de la fonction.',
+        'Un décalage négatif fait automatiquement le chemin inverse.',
+      ],
+      check: (stdout) => {
+        const ls = lines(stdout)
+        return ls.length === 2 && ls[0] === 'wp ejcv' && ls[1] === 'un chat'
+          ? ok('Chiffré, puis déchiffré : ta machine à messages secrets fonctionne ! 🔓')
+          : fail('La première ligne doit être "wp ejcv", la seconde "un chat".')
+      },
+    },
+  ],
+}
+
+// ============================================================
+// PROJET 6 — Quiz de personnalité (Avancé)
+// ============================================================
+const quizProject: Project = {
+  id: 'quiz',
+  title: 'Quiz de personnalité',
+  emoji: '🧭',
+  description: 'Un quiz "Quel type de héros es-tu ?" qui calcule ton profil.',
+  difficulty: 'Avancé',
+  color: 'from-teal-500 to-cyan-600',
+  steps: [
+    {
+      id: 'quiz-1',
+      projectId: 'quiz',
+      title: 'Le tableau des scores',
+      emoji: '📊',
+      xp: 15,
+      intro: 'Un quiz de personnalité garde un score pour chaque profil possible. On démarre avec un dictionnaire à zéro partout.',
+      task: 'Crée `scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}`, puis affiche-le avec print(scores).',
+      starterCode: '# Ton code ici\n',
+      hints: ['scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}\nprint(scores)'],
+      check: (stdout) =>
+        hasLine(stdout, "{'Guerrier': 0, 'Mage': 0, 'Voleur': 0}")
+          ? ok('Le tableau de scores est prêt ! 📊')
+          : fail("Affiche le dictionnaire {'Guerrier': 0, 'Mage': 0, 'Voleur': 0}."),
+    },
+    {
+      id: 'quiz-2',
+      projectId: 'quiz',
+      title: 'Ajouter un point',
+      emoji: '➕',
+      xp: 15,
+      intro: 'Répondre à une question ajoute un point au profil correspondant : scores["Mage"] += 1.',
+      task: 'Avec `scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}`, ajoute 1 point à "Mage", puis affiche scores["Mage"].',
+      starterCode: 'scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}\n\n# Ton code ici\n',
+      hints: ['scores["Mage"] += 1\nprint(scores["Mage"])'],
+      check: (stdout) => (hasLine(stdout, '1') ? ok('Premier point pour les Mages ! ➕') : fail('scores["Mage"] doit valoir 1.')),
+    },
+    {
+      id: 'quiz-3',
+      projectId: 'quiz',
+      title: 'Plusieurs réponses',
+      emoji: '🔁',
+      xp: 20,
+      intro: 'Un vrai quiz pose plusieurs questions. La liste `reponses` contient le profil choisi à chaque question.',
+      task:
+        'Avec `scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}` et `reponses = ["Mage", "Guerrier", "Mage", "Mage", "Voleur"]`, parcours reponses et ajoute 1 point au bon profil à chaque tour, puis affiche scores.',
+      starterCode:
+        'scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}\nreponses = ["Mage", "Guerrier", "Mage", "Mage", "Voleur"]\n\n# Ton code ici\n\nprint(scores)\n',
+      hints: ['for profil in reponses:\n    scores[profil] += 1'],
+      check: (stdout) =>
+        hasLine(stdout, "{'Guerrier': 1, 'Mage': 3, 'Voleur': 1}")
+          ? ok('Cinq réponses comptabilisées, Mage prend la tête ! 🔁')
+          : fail("Le score final doit être {'Guerrier': 1, 'Mage': 3, 'Voleur': 1}."),
+    },
+    {
+      id: 'quiz-4',
+      projectId: 'quiz',
+      title: 'Qui a gagné ?',
+      emoji: '🏅',
+      xp: 20,
+      intro: 'Pour trouver le profil gagnant, on cherche la clé avec la plus grande valeur : max(dico, key=dico.get).',
+      task: 'Avec `scores = {"Guerrier": 1, "Mage": 3, "Voleur": 1}`, trouve et affiche le profil qui a le score le plus élevé.',
+      starterCode: 'scores = {"Guerrier": 1, "Mage": 3, "Voleur": 1}\n\n# Ton code ici\n',
+      hints: ['print(max(scores, key=scores.get))'],
+      check: (stdout) => (hasLine(stdout, 'Mage') ? ok('Et le gagnant est... Mage ! 🏅') : fail('Le profil gagnant doit être "Mage".')),
+    },
+    {
+      id: 'quiz-5',
+      projectId: 'quiz',
+      title: 'Ton quiz complet',
+      emoji: '🎉',
+      xp: 35,
+      intro: 'Assemble tout : questions, score, gagnant — un vrai quiz de personnalité prêt à jouer !',
+      task:
+        'Complète `resultat_quiz(reponses)` : elle crée un dictionnaire scores à zéro pour "Guerrier", "Mage" et "Voleur", ajoute 1 point au bon profil pour chaque réponse de la liste reponses, puis retourne le profil gagnant. Teste avec print(resultat_quiz(["Mage", "Guerrier", "Mage", "Mage", "Voleur"])).',
+      starterCode:
+        'def resultat_quiz(reponses):\n    # complète ici\n    pass\n\nprint(resultat_quiz(["Mage", "Guerrier", "Mage", "Mage", "Voleur"]))\n',
+      hints: [
+        'Recrée le dictionnaire scores à zéro à l\'intérieur de la fonction, puis reprends ta boucle de la leçon précédente.',
+        'Termine par return max(scores, key=scores.get).',
+      ],
+      check: (stdout) =>
+        hasLine(stdout, 'Mage')
+          ? ok('Ton quiz de personnalité est complet et fonctionnel ! 🎉🧭')
+          : fail('resultat_quiz([...]) doit retourner "Mage".'),
+    },
+  ],
+}
+
+export const PROJECTS: Project[] = [
+  devineProject,
+  emojiProject,
+  combatProject,
+  cesarProject,
+  histoireProject,
+  quizProject,
+]
