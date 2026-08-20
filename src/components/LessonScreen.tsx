@@ -88,7 +88,9 @@ export default function LessonScreen({
         playSuccess(soundOn)
         fireConfetti()
         const completion = onComplete(lesson)
-        setSuccessData(completion)
+        // Give the learner a beat to actually see what they just made (the
+        // drawing, the printed output) before the congrats modal covers it.
+        window.setTimeout(() => setSuccessData(completion), 900)
       } else {
         playError(soundOn)
       }
@@ -155,7 +157,7 @@ export default function LessonScreen({
         {running ? (pyodideReady ? 'Ça tourne...' : '🐍 Préparation de Python...') : '▶ Lancer le code'}
       </button>
 
-      {drawCommands.length > 0 && <TurtleCanvas commands={drawCommands} />}
+      {(lesson.visual || drawCommands.length > 0) && <TurtleCanvas commands={drawCommands} />}
 
       {output && (
         <div className="mb-3 rounded-xl bg-black/40 p-3 font-mono text-xs text-white/80">

@@ -658,6 +658,7 @@ const tortueProject: Project = {
     {
       id: 'tortue-1',
       projectId: 'tortue',
+      visual: true,
       title: 'Réveille la tortue',
       emoji: '🐢',
       xp: 10,
@@ -676,6 +677,7 @@ const tortueProject: Project = {
     {
       id: 'tortue-2',
       projectId: 'tortue',
+      visual: true,
       title: 'Tourner',
       emoji: '↩️',
       xp: 15,
@@ -694,6 +696,7 @@ const tortueProject: Project = {
     {
       id: 'tortue-3',
       projectId: 'tortue',
+      visual: true,
       title: 'Dessine un carré',
       emoji: '⬛',
       xp: 20,
@@ -711,6 +714,7 @@ const tortueProject: Project = {
     {
       id: 'tortue-4',
       projectId: 'tortue',
+      visual: true,
       title: 'Ajoute de la couleur',
       emoji: '🎨',
       xp: 20,
@@ -732,6 +736,7 @@ const tortueProject: Project = {
     {
       id: 'tortue-5',
       projectId: 'tortue',
+      visual: true,
       title: 'Motif en étoile',
       emoji: '✨',
       xp: 25,
@@ -750,6 +755,7 @@ const tortueProject: Project = {
     {
       id: 'tortue-6',
       projectId: 'tortue',
+      visual: true,
       title: 'Ta fonction magique',
       emoji: '🌀',
       xp: 35,

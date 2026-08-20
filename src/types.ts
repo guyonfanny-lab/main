@@ -25,6 +25,8 @@ export interface Exercise {
   task: string
   starterCode: string
   hints: string[]
+  /** Shows an (initially empty) drawing canvas before the code has even run, so it's obvious one is coming. */
+  visual?: boolean
   /** Runs after the user's code executes; inspects stdout, globals, and anything drawn by the turtle. */
   check: (stdout: string, get: (name: string) => unknown, commands: DrawCommand[]) => CheckResult
 }
