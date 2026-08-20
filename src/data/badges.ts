@@ -138,7 +138,7 @@ export function evaluateBadges(progress: Progress): string[] {
   grant('espion', !!progress.completedLessons['cesar-5'])
   grant('oracle', !!progress.completedLessons['quiz-5'])
   grant('artiste', !!progress.completedLessons['tortue-6'])
-  grant('fermier-remplace', !!progress.completedLessons['ferme-12'])
+  grant('fermier-remplace', !!progress.completedLessons['ferme-32'])
   grant('explorateur', !!progress.completedLessons['labyrinthe-4'])
   grant('artiste-des-spirales', !!progress.completedLessons['spirale-4'])
   grant('maitre-python', completedCount >= LESSONS.length)

@@ -6,7 +6,12 @@ interface FarmGridProps {
   characterEmoji?: string
 }
 
-const CELL_SIZE = 44
+const MAX_CELL_SIZE = 44
+const MIN_CELL_SIZE = 16
+// Conservative usable width inside the mobile layout (max-w-md, px-4, on a
+// narrow phone like an iPhone SE), so wide grids shrink to fit instead of
+// getting clipped by the container.
+const MAX_GRID_WIDTH = 320
 const STEP_MS = 320
 
 export default function FarmGrid({ frames, characterEmoji = '🚜' }: FarmGridProps) {
@@ -29,11 +34,19 @@ export default function FarmGrid({ frames, characterEmoji = '🚜' }: FarmGridPr
   const frame = frames[Math.min(frameIndex, frames.length - 1)]
   if (!frame) return null
 
+  const cols = frame.grid[0]?.length ?? 1
+  const gap = cols > 10 ? 2 : 4
+  const cellSize = Math.max(
+    MIN_CELL_SIZE,
+    Math.min(MAX_CELL_SIZE, Math.floor((MAX_GRID_WIDTH - (cols - 1) * gap) / cols)),
+  )
+  const fontSize = Math.max(10, Math.round(cellSize * 0.5))
+
   return (
     <div className="mb-3 flex justify-center overflow-hidden rounded-xl bg-[#fafaf5] p-3">
       <div
-        className="grid gap-1"
-        style={{ gridTemplateColumns: `repeat(${frame.grid[0]?.length ?? 1}, ${CELL_SIZE}px)` }}
+        className="grid"
+        style={{ gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`, gap: `${gap}px` }}
       >
         {frame.grid.map((row, y) =>
           row.map((cell, x) => {
@@ -41,8 +54,8 @@ export default function FarmGrid({ frames, characterEmoji = '🚜' }: FarmGridPr
             return (
               <div
                 key={`${x}-${y}`}
-                className="flex items-center justify-center rounded-md bg-[#e7ddc4] text-xl"
-                style={{ width: CELL_SIZE, height: CELL_SIZE }}
+                className="flex items-center justify-center rounded-md bg-[#e7ddc4]"
+                style={{ width: cellSize, height: cellSize, fontSize }}
               >
                 {hasTractor ? (
                   <span

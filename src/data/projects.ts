@@ -1095,8 +1095,550 @@ const fermeProject: Project = {
       ],
       check: (_stdout, _get, _commands, frames) =>
         allHarvested(frames)
-          ? ok("Champ sauvage dompté : récoltes ramassées, rocher évité. Bravo, fermier remplacé pour de bon ! 🏆🚜🪨")
+          ? ok('Champ sauvage dompté : récoltes ramassées, rocher évité ! 🏆🚜🪨')
           : fail('Il faut récolter les 4 cases de récolte en évitant le rocher.'),
+    },
+    {
+      id: 'ferme-13',
+      projectId: 'ferme',
+      title: 'Travailler une case',
+      emoji: '🌱',
+      xp: 20,
+      intro:
+        "planter() sème une graine sur une case vide, recolter() récolte une case prête. En combinant les deux avec case_recoltable(), le tracteur peut s'occuper de n'importe quelle case : la récolter si elle est prête, sinon la semer puis la récolter aussitôt.",
+      task:
+        "Le champ a 3 cases : vide, récolte, vide. Pour chacune (en avançant entre elles) : si case_recoltable() est vrai, récolte ; sinon, plante puis récolte.",
+      starterCode: '# Ton code ici\n',
+      farmConfig: { width: 3, height: 1, cells: row('vide', 'recolte', 'vide'), startX: 0, startY: 0, startFacing: 90 },
+      hints: [
+        'if case_recoltable():\n    recolter()\nelse:\n    planter()\n    recolter()',
+        'if case_recoltable():\n    recolter()\nelse:\n    planter()\n    recolter()\ndeplacer()\nif case_recoltable():\n    recolter()\nelse:\n    planter()\n    recolter()\ndeplacer()\nif case_recoltable():\n    recolter()\nelse:\n    planter()\n    recolter()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Chaque case est traitée, prête ou pas ! 🌱🌾')
+          : fail('Il faut traiter les 3 cases : récolter si prêt, sinon planter puis récolter.'),
+    },
+    {
+      id: 'ferme-14',
+      projectId: 'ferme',
+      title: "Une fonction qui ne laisse rien de côté",
+      emoji: '🔁',
+      xp: 25,
+      intro:
+        "Transforme ce motif en fonction travailler_case(), puis répète-la en boucle sur toute une ligne : le tracteur sème et récolte tout seul, quel que soit l'état de départ de chaque case.",
+      task:
+        'Complète travailler_case() (récolte si prêt, sinon plante puis récolte). Puis, avec une boucle de 5 tours : travailler_case(), puis avance.',
+      starterCode: 'def travailler_case():\n    # complète ici\n    pass\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 5,
+        height: 1,
+        cells: row('recolte', 'vide', 'recolte', 'vide', 'recolte'),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: [
+        'if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()',
+        'for _ in range(5):\n    travailler_case()\n    deplacer()',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Une ligne entièrement retapée, prête ou pas ! 🔁🌾')
+          : fail('travailler_case() puis deplacer(), répété 5 fois, doit tout traiter.'),
+    },
+    {
+      id: 'ferme-15',
+      projectId: 'ferme',
+      title: 'Deux lignes bien tenues',
+      emoji: '🔃',
+      xp: 30,
+      intro:
+        "travailler_ligne (déjà prête) marche quelle que soit la direction du tracteur. Utilise-la, fais demi-tour, reviens au début avec de simples deplacer() (plus rien à travailler sur le chemin du retour), redescends comme tu sais déjà faire, puis retravaille la ligne suivante.",
+      task:
+        'Le champ a 2 lignes de 4 cases. Utilise travailler_ligne(4), fais demi-tour, reviens au début (3 deplacer()), redescends à la ligne suivante (comme à "Changer de ligne"), puis travailler_ligne(4) à nouveau.',
+      starterCode:
+        'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\n# Ton code ici\n',
+      farmConfig: { width: 4, height: 2, cells: field(4, 2, [[1, 0], [3, 0], [0, 1], [2, 1]]), startX: 0, startY: 0, startFacing: 90 },
+      hints: [
+        'travailler_ligne(4)\npivoter_droite()\npivoter_droite()\ndeplacer()\ndeplacer()\ndeplacer()',
+        'travailler_ligne(4)\npivoter_droite()\npivoter_droite()\ndeplacer()\ndeplacer()\ndeplacer()\npivoter_droite()\npivoter_droite()\npivoter_droite()\ndeplacer()\npivoter_gauche()\ntravailler_ligne(4)',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Deux lignes entretenues avec les mêmes fonctions ! 🔃🌱')
+          : fail('Il faut traiter les 2 lignes complètes du champ.'),
+    },
+    {
+      id: 'ferme-16',
+      projectId: 'ferme',
+      title: "Le champ qui s'entretient tout seul",
+      emoji: '🏆',
+      xp: 45,
+      intro:
+        "Généralise en une fonction travailler_champ(largeur, hauteur) qui répète le motif ligne par ligne. Combinée à planter(), elle est plus puissante que recolter_champ : elle marche même sur un champ complètement vide au départ.",
+      task:
+        'Complète `travailler_champ(largeur, hauteur)` sur le modèle de recolter_champ : pour chaque ligne, travailler_ligne(largeur), puis (sauf sur la dernière ligne) demi-tour, retour au début, passage à la ligne suivante. Teste avec travailler_champ(4, 3).',
+      starterCode:
+        'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\ndef travailler_champ(largeur, hauteur):\n    # complète ici\n    pass\n\ntravailler_champ(4, 3)\n',
+      farmConfig: {
+        width: 4,
+        height: 3,
+        cells: field(4, 3, [[0, 0], [2, 0], [1, 1], [3, 1], [0, 2], [3, 2]]),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: [
+        "Reprends le motif de l'étape précédente à l'intérieur d'une boucle for ligne in range(hauteur):, avec le même if ligne < hauteur - 1: pour la descente.",
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok("Un champ entièrement autonome, qui sème et récolte tout seul ! 🏆🌱")
+          : fail('travailler_champ(4, 3) doit traiter toutes les cases du champ.'),
+    },
+    {
+      id: 'ferme-17',
+      projectId: 'ferme',
+      title: 'Nouveau champ, même fonction',
+      emoji: '🌾',
+      xp: 20,
+      intro: "Ta fonction travailler_champ marche sur un champ de n'importe quelle taille. Voici un champ un peu plus grand.",
+      task: 'Appelle travailler_champ(5, 3) pour cultiver entièrement ce nouveau champ.',
+      starterCode:
+        'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\ndef travailler_champ(largeur, hauteur):\n    for ligne in range(hauteur):\n        travailler_ligne(largeur)\n        if ligne < hauteur - 1:\n            pivoter_droite()\n            pivoter_droite()\n            for _ in range(largeur - 1):\n                deplacer()\n            pivoter_droite()\n            pivoter_droite()\n            pivoter_droite()\n            deplacer()\n            pivoter_gauche()\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 5,
+        height: 3,
+        cells: field(5, 3, [[0, 0], [2, 0], [4, 0], [1, 1], [3, 1], [0, 2], [2, 2], [4, 2]]),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['travailler_champ(5, 3)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Un champ de plus, sans écrire une seule nouvelle ligne de logique ! 🌾')
+          : fail('Il faut appeler travailler_champ(5, 3).'),
+    },
+    {
+      id: 'ferme-18',
+      projectId: 'ferme',
+      title: 'Encore plus grand',
+      emoji: '🌾',
+      xp: 20,
+      intro: 'Le champ grandit encore. Ta fonction, elle, ne change pas.',
+      task: 'Appelle travailler_champ(6, 3) pour cultiver entièrement ce champ.',
+      starterCode:
+        'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\ndef travailler_champ(largeur, hauteur):\n    for ligne in range(hauteur):\n        travailler_ligne(largeur)\n        if ligne < hauteur - 1:\n            pivoter_droite()\n            pivoter_droite()\n            for _ in range(largeur - 1):\n                deplacer()\n            pivoter_droite()\n            pivoter_droite()\n            pivoter_droite()\n            deplacer()\n            pivoter_gauche()\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 6,
+        height: 3,
+        cells: field(6, 3, [[0, 0], [3, 0], [5, 0], [1, 1], [4, 1], [2, 2], [5, 2]]),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['travailler_champ(6, 3)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Toujours aussi efficace ! 🌾🚜')
+          : fail('Il faut appeler travailler_champ(6, 3).'),
+    },
+    {
+      id: 'ferme-19',
+      projectId: 'ferme',
+      title: 'Un champ plus haut',
+      emoji: '🌾',
+      xp: 20,
+      intro: 'Cette fois, le champ a une ligne de plus plutôt qu\'une colonne de plus. Aucun souci pour ta fonction.',
+      task: 'Appelle travailler_champ(5, 4) pour cultiver entièrement ce champ.',
+      starterCode:
+        'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\ndef travailler_champ(largeur, hauteur):\n    for ligne in range(hauteur):\n        travailler_ligne(largeur)\n        if ligne < hauteur - 1:\n            pivoter_droite()\n            pivoter_droite()\n            for _ in range(largeur - 1):\n                deplacer()\n            pivoter_droite()\n            pivoter_droite()\n            pivoter_droite()\n            deplacer()\n            pivoter_gauche()\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 5,
+        height: 4,
+        cells: field(5, 4, [[0, 0], [4, 0], [2, 1], [0, 2], [3, 2], [1, 3], [4, 3]]),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['travailler_champ(5, 4)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('4 lignes traitées sans effort supplémentaire ! 🌾🚜')
+          : fail('Il faut appeler travailler_champ(5, 4).'),
+    },
+    {
+      id: 'ferme-20',
+      projectId: 'ferme',
+      title: 'Le grand champ cultivé',
+      emoji: '🏆',
+      xp: 30,
+      intro: "Le plus grand champ que ton tracteur ait jamais vu — et pourtant, une seule ligne de code suffit.",
+      task: 'Appelle travailler_champ(7, 3) pour cultiver entièrement ce grand champ.',
+      starterCode:
+        'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\ndef travailler_champ(largeur, hauteur):\n    for ligne in range(hauteur):\n        travailler_ligne(largeur)\n        if ligne < hauteur - 1:\n            pivoter_droite()\n            pivoter_droite()\n            for _ in range(largeur - 1):\n                deplacer()\n            pivoter_droite()\n            pivoter_droite()\n            pivoter_droite()\n            deplacer()\n            pivoter_gauche()\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 7,
+        height: 3,
+        cells: field(7, 3, [
+          [0, 0], [2, 0], [4, 0], [6, 0],
+          [1, 1], [3, 1], [5, 1],
+          [0, 2], [2, 2], [4, 2], [6, 2],
+        ]),
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['travailler_champ(7, 3)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('21 cases cultivées tout seul. Ton tracteur est vraiment autonome ! 🏆🌾')
+          : fail('Il faut appeler travailler_champ(7, 3).'),
+    },
+    {
+      id: 'ferme-21',
+      projectId: 'ferme',
+      title: 'Le détour du tracteur',
+      emoji: '🪨',
+      xp: 30,
+      intro:
+        "Sur une longue ligne, impossible de savoir à l'avance où seront les rochers. Avec case_libre(), le tracteur peut avancer normalement quand la voie est libre, et faire un petit détour par la ligne du dessous quand elle ne l'est pas — sans jamais se bloquer.",
+      task:
+        "Complète `recolter_ligne_avec_detour(nb_cases)` : tant que toutes les cases ne sont pas visitées, récolte si possible, puis avance normalement si case_libre(), sinon fais le détour (descendre, avancer deux fois, remonter) en comptant une case de plus. Teste avec recolter_ligne_avec_detour(6).",
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                # complète ici : détour par la ligne du dessous\n                pass\n\nrecolter_ligne_avec_detour(6)\n',
+      farmConfig: {
+        width: 6,
+        height: 2,
+        cells: [
+          ['vide', 'rocher', 'vide', 'recolte', 'vide', 'recolte'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: [
+        'pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1',
+      ],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok("Le rocher n'a même pas ralenti le tracteur ! 🪨🔄")
+          : fail('recolter_ligne_avec_detour(6) doit récolter toute la ligne, rocher inclus.'),
+    },
+    {
+      id: 'ferme-22',
+      projectId: 'ferme',
+      title: 'Deux rochers à éviter',
+      emoji: '🪨',
+      xp: 20,
+      intro: 'La même fonction marche quel que soit le nombre de rochers sur la ligne.',
+      task: 'Appelle recolter_ligne_avec_detour(7) pour nettoyer toute la ligne.',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 7,
+        height: 2,
+        cells: [
+          ['recolte', 'vide', 'rocher', 'vide', 'rocher', 'vide', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(7)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Deux détours, zéro souci ! 🪨🪨')
+          : fail('Il faut appeler recolter_ligne_avec_detour(7).'),
+    },
+    {
+      id: 'ferme-23',
+      projectId: 'ferme',
+      title: 'La ligne caillouteuse',
+      emoji: '🪨',
+      xp: 15,
+      intro: 'Toujours la même fonction, encore un peu plus longue.',
+      task: 'Appelle recolter_ligne_avec_detour(8).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 8,
+        height: 2,
+        cells: [
+          ['vide', 'recolte', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(8)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Ligne nettoyée de bout en bout ! 🪨')
+          : fail('Il faut appeler recolter_ligne_avec_detour(8).'),
+    },
+    {
+      id: 'ferme-24',
+      projectId: 'ferme',
+      title: 'La ligne semée de pièges',
+      emoji: '🪨',
+      xp: 15,
+      intro: 'Deux rochers cette fois, séparés par une case.',
+      task: 'Appelle recolter_ligne_avec_detour(9).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 9,
+        height: 2,
+        cells: [
+          ['vide', 'vide', 'rocher', 'vide', 'vide', 'rocher', 'vide', 'recolte', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(9)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Toujours pas ralenti ! 🪨🚜')
+          : fail('Il faut appeler recolter_ligne_avec_detour(9).'),
+    },
+    {
+      id: 'ferme-25',
+      projectId: 'ferme',
+      title: 'Le champ Nord',
+      emoji: '🌾',
+      xp: 15,
+      intro: 'Un champ plus long, avec ses propres rochers.',
+      task: 'Appelle recolter_ligne_avec_detour(10).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 10,
+        height: 2,
+        cells: [
+          ['vide', 'rocher', 'vide', 'recolte', 'vide', 'vide', 'rocher', 'vide', 'recolte', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(10)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Champ Nord terminé ! 🌾')
+          : fail('Il faut appeler recolter_ligne_avec_detour(10).'),
+    },
+    {
+      id: 'ferme-26',
+      projectId: 'ferme',
+      title: 'Le champ Sud',
+      emoji: '🌾',
+      xp: 15,
+      intro: 'Encore un peu plus grand.',
+      task: 'Appelle recolter_ligne_avec_detour(11).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 11,
+        height: 2,
+        cells: [
+          ['vide', 'rocher', 'vide', 'vide', 'recolte', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(11)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Champ Sud terminé ! 🌾')
+          : fail('Il faut appeler recolter_ligne_avec_detour(11).'),
+    },
+    {
+      id: 'ferme-27',
+      projectId: 'ferme',
+      title: 'La Vallée',
+      emoji: '🌄',
+      xp: 15,
+      intro: 'Une vallée rocailleuse, mais rien que ton tracteur ne puisse gérer.',
+      task: 'Appelle recolter_ligne_avec_detour(12).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 12,
+        height: 2,
+        cells: [
+          ['vide', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide', 'vide', 'rocher', 'vide', 'recolte', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(12)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('La Vallée est nettoyée ! 🌄')
+          : fail('Il faut appeler recolter_ligne_avec_detour(12).'),
+    },
+    {
+      id: 'ferme-28',
+      projectId: 'ferme',
+      title: 'Le Plateau',
+      emoji: '🏔️',
+      xp: 15,
+      intro: 'Trois rochers, une seule fonction.',
+      task: 'Appelle recolter_ligne_avec_detour(13).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 13,
+        height: 2,
+        cells: [
+          ['vide', 'vide', 'rocher', 'vide', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide', 'vide', 'rocher', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(13)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Le Plateau est dompté ! 🏔️')
+          : fail('Il faut appeler recolter_ligne_avec_detour(13).'),
+    },
+    {
+      id: 'ferme-29',
+      projectId: 'ferme',
+      title: 'Le Chemin des Pierres',
+      emoji: '🪨',
+      xp: 15,
+      intro: 'Trois rochers de plus, sans jamais toucher au code.',
+      task: 'Appelle recolter_ligne_avec_detour(14).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 14,
+        height: 2,
+        cells: [
+          ['vide', 'rocher', 'vide', 'vide', 'recolte', 'vide', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide', 'rocher', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(14)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('Le Chemin des Pierres est libre ! 🪨')
+          : fail('Il faut appeler recolter_ligne_avec_detour(14).'),
+    },
+    {
+      id: 'ferme-30',
+      projectId: 'ferme',
+      title: 'La Grande Plaine',
+      emoji: '🌾',
+      xp: 15,
+      intro: 'Un champ encore plus vaste.',
+      task: 'Appelle recolter_ligne_avec_detour(15).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 15,
+        height: 2,
+        cells: [
+          ['vide', 'rocher', 'vide', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide'],
+          ['vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide'],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(15)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok('La Grande Plaine est cultivée ! 🌾')
+          : fail('Il faut appeler recolter_ligne_avec_detour(15).'),
+    },
+    {
+      id: 'ferme-31',
+      projectId: 'ferme',
+      title: "L'Étendue Sauvage",
+      emoji: '🪨',
+      xp: 20,
+      intro: "Presque la taille du champ final. Ta fonction n'a pas bronché jusqu'ici.",
+      task: 'Appelle recolter_ligne_avec_detour(16).',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 16,
+        height: 2,
+        cells: [
+          [
+            'vide', 'vide', 'rocher', 'vide', 'vide', 'rocher', 'vide', 'vide',
+            'vide', 'recolte', 'vide', 'vide', 'rocher', 'vide', 'recolte', 'vide',
+          ],
+          [
+            'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide',
+            'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide',
+          ],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(16)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok("L'Étendue Sauvage est domptée ! 🪨🌾")
+          : fail('Il faut appeler recolter_ligne_avec_detour(16).'),
+    },
+    {
+      id: 'ferme-32',
+      projectId: 'ferme',
+      title: 'Le champ interminable',
+      emoji: '🏆',
+      xp: 60,
+      intro:
+        "Le tout dernier champ, le plus long de tous : 18 cases, 3 rochers, plusieurs récoltes. La même petite fonction, écrite il y a plusieurs champs, s'en occupe encore. C'est ça, un fermier vraiment remplacé.",
+      task: 'Appelle recolter_ligne_avec_detour(18) pour nettoyer ce dernier champ, le plus grand de tous.',
+      starterCode:
+        'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                pivoter_droite()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                deplacer()\n                pivoter_gauche()\n                deplacer()\n                pivoter_droite()\n                colonne = colonne + 1\n\n# Ton code ici\n',
+      farmConfig: {
+        width: 18,
+        height: 2,
+        cells: [
+          [
+            'vide', 'vide', 'rocher', 'vide', 'vide', 'recolte', 'vide', 'vide', 'rocher',
+            'vide', 'vide', 'recolte', 'vide', 'vide', 'rocher', 'vide', 'recolte', 'vide',
+          ],
+          [
+            'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide',
+            'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide', 'vide',
+          ],
+        ],
+        startX: 0,
+        startY: 0,
+        startFacing: 90,
+      },
+      hints: ['recolter_ligne_avec_detour(18)'],
+      check: (_stdout, _get, _commands, frames) =>
+        allHarvested(frames)
+          ? ok(
+              "18 cases, 3 rochers, une seule fonction. Le fermier peut prendre sa retraite pour de bon. Bravo, tu as tout terminé ! 🏆🚜🌾",
+            )
+          : fail('Il faut appeler recolter_ligne_avec_detour(18).'),
     },
   ],
 }
