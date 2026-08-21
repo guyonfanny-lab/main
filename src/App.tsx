@@ -8,10 +8,13 @@ import ProjectsScreen from './components/ProjectsScreen'
 import ProjectStepsScreen from './components/ProjectStepsScreen'
 import DonjonScreen from './components/DonjonScreen'
 import ChallengesScreen from './components/ChallengesScreen'
+import GamesScreen from './components/GamesScreen'
+import GameLessonScreen from './components/GameLessonScreen'
 import { LESSONS } from './data/curriculum'
 import { PROJECTS } from './data/projects'
 import { DONJON_LEVELS } from './data/donjon'
 import { CHALLENGES } from './data/challenges'
+import { GAME_LEVELS } from './data/games'
 import { completeLesson, loadProgress, resetProgress, toggleSound } from './lib/storage'
 import type { Exercise } from './types'
 
@@ -23,6 +26,7 @@ function App() {
   const [activeStepId, setActiveStepId] = useState<string | null>(null)
   const [activeDonjonId, setActiveDonjonId] = useState<string | null>(null)
   const [activeChallengeId, setActiveChallengeId] = useState<string | null>(null)
+  const [activeGameId, setActiveGameId] = useState<string | null>(null)
 
   const activeLesson: Exercise | null = activeLessonId
     ? (LESSONS.find((l) => l.id === activeLessonId) ?? null)
@@ -40,7 +44,12 @@ function App() {
     ? (CHALLENGES.find((c) => c.id === activeChallengeId) ?? null)
     : null
 
-  const inLesson = !!activeLesson || !!activeStep || !!activeDonjonLevel || !!activeChallenge
+  const activeGameLevel: Exercise | null = activeGameId
+    ? (GAME_LEVELS.find((g) => g.id === activeGameId) ?? null)
+    : null
+
+  const inLesson =
+    !!activeLesson || !!activeStep || !!activeDonjonLevel || !!activeChallenge || !!activeGameLevel
 
   function handleComplete(lesson: Exercise) {
     const result = completeLesson(progress, lesson.id, lesson.xp)
@@ -56,6 +65,7 @@ function App() {
       setActiveStepId(null)
       setActiveDonjonId(null)
       setActiveChallengeId(null)
+      setActiveGameId(null)
       setTab('path')
     }
   }
@@ -113,6 +123,18 @@ function App() {
             onComplete={handleComplete}
             onNextLesson={(id) => setActiveChallengeId(id)}
           />
+        ) : activeGameLevel ? (
+          <GameLessonScreen
+            key={activeGameLevel.id}
+            lesson={activeGameLevel}
+            siblings={GAME_LEVELS}
+            backLabel="Retour aux jeux"
+            finaleHeading="Tous les jeux terminés !"
+            soundOn={progress.soundOn}
+            onBack={() => setActiveGameId(null)}
+            onComplete={handleComplete}
+            onNextLesson={(id) => setActiveGameId(id)}
+          />
         ) : tab === 'path' ? (
           <PathScreen progress={progress} onSelectLesson={setActiveLessonId} />
         ) : tab === 'projects' ? (
@@ -128,6 +150,8 @@ function App() {
           )
         ) : tab === 'donjon' ? (
           <DonjonScreen progress={progress} onSelectLevel={setActiveDonjonId} />
+        ) : tab === 'games' ? (
+          <GamesScreen progress={progress} onSelectLevel={setActiveGameId} />
         ) : tab === 'challenges' ? (
           <ChallengesScreen progress={progress} onSelectChallenge={setActiveChallengeId} />
         ) : (

@@ -86,13 +86,18 @@ export interface Exercise {
   characterEmoji?: string
   /** Shows the persistent function-library editor above the code, injected before this exercise's code on every run. */
   usesLibrary?: string
-  /** Runs after the user's code executes; inspects stdout, globals, turtle drawing, and the farm/dungeon grid's final frame. */
+  /**
+   * Runs after the user's code executes; inspects stdout, globals, turtle drawing, and the
+   * farm/dungeon grid's final frame. `code` (the raw source) is only passed for JavaScript game
+   * levels, whose checks read source patterns instead of a deterministic run trace.
+   */
   check: (
     stdout: string,
     get: (name: string) => unknown,
     commands: DrawCommand[],
     farmFrames: FarmFrame[],
     donjonFrames: DonjonFrame[],
+    code?: string,
   ) => CheckResult
 }
 
@@ -102,6 +107,11 @@ export interface Lesson extends Exercise {
 
 /** One level of the standalone "Donjon" game (flat list, like Lesson but with no module and an optional chapter label). */
 export interface DonjonLevel extends Exercise {
+  chapter: string
+}
+
+/** One level of the standalone "Jeux" game-coding track: real JavaScript + Canvas, live-tested in a sandboxed iframe. */
+export interface GameLevel extends Exercise {
   chapter: string
 }
 
