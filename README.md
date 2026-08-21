@@ -14,10 +14,11 @@ premier chargement.
   grâce à [Pyodide](https://pyodide.org) (Python compilé en WebAssembly). Pas
   de serveur, pas de compte, tout tourne en local sur ton téléphone.
 - Un onglet **Jeux 🎮** pour apprendre à coder de petits jeux graphiques en
-  JavaScript + Canvas (vrai code de navigateur, pas une simulation) :
-  dessiner, animer, contrôler au clavier ou au doigt, détecter les
-  collisions, jusqu'à un jeu "Attrape-pommes" complet — testé en direct dans
-  un aperçu interactif à chaque leçon.
+  JavaScript + Canvas (vrai code de navigateur, pas une simulation), testé en
+  direct dans un aperçu interactif à chaque leçon. Chaque jeu est une piste
+  indépendante (comme les Projets) : Attrape-pommes, Pong à deux, Clicker,
+  Casse-briques, Morpion, Chrono-réflexes, Labyrinthe, Serpent, Flappy,
+  Plateforme, Envahisseurs de l'espace, Simon, plus un bac à sable libre.
 - XP, niveaux, série de jours (streak), badges à débloquer, confettis à
   chaque réussite.
 - Indices progressifs si tu bloques sur un exercice.

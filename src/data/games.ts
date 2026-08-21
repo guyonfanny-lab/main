@@ -815,6 +815,370 @@ export const GAME_TRACKS: GameTrack[] = [
     ],
   },
   // ============================================================
+  // FLAPPY — gravité + impulsion de saut, obstacles qui défilent
+  // ============================================================
+  {
+    id: 'flappy',
+    title: 'Flappy',
+    emoji: '🐦',
+    description: "Un battement d'aile contre la gravité, entre des tuyaux qui défilent.",
+    difficulty: 'Intermédiaire',
+    color: 'from-amber-400 to-orange-500',
+    steps: [
+      {
+        id: 'flappy-1',
+        trackId: 'flappy',
+        title: 'Gravité et saut',
+        emoji: '🪽',
+        xp: 20,
+        intro:
+          "vitesseY augmente à chaque image (la gravité) et s'ajoute à y : c'est ce qui fait tomber l'oiseau. Un appui sur espace lui donne une impulsion vers le haut en remettant vitesseY à une valeur négative.",
+        task:
+          "Fais tomber un cercle avec la gravité : vitesseY += 0.4 puis y += vitesseY à chaque image. Quand estAppuyee(' '), remets vitesseY à -8 (impulsion vers le haut).",
+        starterCode:
+          "let y = 200\nlet vitesseY = 0\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  // Ton code ici : applique la gravité à vitesseY et y, et le saut sur espace\n\n  ctx.beginPath()\n  ctx.arc(60, y, 12, 0, Math.PI * 2)\n  ctx.fillStyle = 'gold'\n  ctx.fill()\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          "vitesseY += 0.4\ny += vitesseY\nif (estAppuyee(' ')) {\n  vitesseY = -8\n}",
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /vitesseY/) && has(code, /estAppuyee\s*\(\s*['"] ['"]/)
+            ? ok('Il tombe, il saute — les bases du vol sont là ! 🪽')
+            : fail("Utilise vitesseY pour la gravité (vitesseY += ...), et estAppuyee(' ') pour sauter."),
+      },
+      {
+        id: 'flappy-2',
+        trackId: 'flappy',
+        title: 'Un tuyau qui défile',
+        emoji: '🟩',
+        xp: 20,
+        intro:
+          "Un obstacle qui avance vers la gauche (tuyauX -= 2 à chaque image) donne l'impression que le monde défile. Quand il sort complètement de l'écran, remets-le à droite avec une nouvelle hauteur de trou aléatoire (hasard()).",
+        task:
+          'Fais défiler tuyauX vers la gauche ; quand il sort à gauche (tuyauX < -40), remets-le à droite (tuyauX = 300) avec un nouveau trouY aléatoire (hasard(50, 300)).',
+        starterCode:
+          "let tuyauX = 300\nlet trouY = 200\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  // Ton code ici : fais défiler tuyauX, et réinitialise-le à droite avec un nouveau trouY\n\n  ctx.fillStyle = 'limegreen'\n  ctx.fillRect(tuyauX, 0, 40, trouY - 60)\n  ctx.fillRect(tuyauX, trouY + 60, 40, canvas.height - trouY - 60)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'tuyauX -= 2\nif (tuyauX < -40) {\n  tuyauX = 300\n  trouY = hasard(50, 300)\n}',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /hasard\s*\(/) && has(code, /tuyauX\s*(-=|=\s*tuyauX)/)
+            ? ok('Un tuyau qui défile et se renouvelle à l\'infini ! 🟩')
+            : fail("Fais avancer tuyauX vers la gauche, et remets-le à droite avec hasard() pour trouY."),
+      },
+      {
+        id: 'flappy-3',
+        trackId: 'flappy',
+        title: 'Collision avec le tuyau',
+        emoji: '💥',
+        xp: 25,
+        intro:
+          "Le tuyau est en réalité deux rectangles : celui du haut (de y=0 jusqu'au trou) et celui du bas (du bas du trou jusqu'en bas de l'écran). Vérifie collision() avec les deux.",
+        task:
+          "Détecte si l'oiseau touche le tuyau du haut OU du bas avec collision() ; si oui, passe perdu à true.",
+        starterCode:
+          "let y = 200\nlet vitesseY = 0\nlet tuyauX = 300\nlet trouY = 200\nlet perdu = false\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  if (!perdu) {\n    vitesseY += 0.4\n    y += vitesseY\n    if (estAppuyee(' ')) vitesseY = -8\n\n    tuyauX -= 2\n    if (tuyauX < -40) {\n      tuyauX = 300\n      trouY = hasard(50, 300)\n    }\n\n    // Ton code ici : détecte la collision avec le tuyau du haut et du bas, et passe perdu à true\n  }\n\n  ctx.fillStyle = 'limegreen'\n  ctx.fillRect(tuyauX, 0, 40, trouY - 60)\n  ctx.fillRect(tuyauX, trouY + 60, 40, canvas.height - trouY - 60)\n  ctx.beginPath()\n  ctx.arc(60, y, 12, 0, Math.PI * 2)\n  ctx.fillStyle = 'gold'\n  ctx.fill()\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'if (collision(tuyauX, 0, 40, trouY - 60, 48, y - 12, 24, 24)) perdu = true\nif (collision(tuyauX, trouY + 60, 40, canvas.height - trouY - 60, 48, y - 12, 24, 24)) perdu = true',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /collision\s*\(/) && has(code, /perdu\s*=\s*true/)
+            ? ok('Premier crash détecté — le jeu sait maintenant punir une erreur ! 💥')
+            : fail('Utilise collision() avec les deux morceaux du tuyau, et passe perdu à true au contact.'),
+      },
+      {
+        id: 'flappy-4',
+        trackId: 'flappy',
+        title: 'Ton Flappy complet',
+        emoji: '🏆',
+        xp: 40,
+        intro:
+          'Ajoute un score qui augmente d\'un point à chaque fois que le tuyau passe l\'oiseau (quand tuyauX passe sous 60 par exemple), et affiche-le avec ctx.fillText.',
+        task: 'Augmente score une fois par tuyau passé, et affiche-le avec ctx.fillText.',
+        starterCode:
+          "let y = 200\nlet vitesseY = 0\nlet tuyauX = 300\nlet trouY = 200\nlet perdu = false\nlet score = 0\nlet compte = false\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  if (!perdu) {\n    vitesseY += 0.4\n    y += vitesseY\n    if (estAppuyee(' ')) vitesseY = -8\n\n    tuyauX -= 2\n    if (tuyauX < 60 && !compte) {\n      // Ton code ici : augmente le score, et passe compte à true (pour ne compter qu'une fois)\n    }\n    if (tuyauX < -40) {\n      tuyauX = 300\n      trouY = hasard(50, 300)\n      compte = false\n    }\n\n    if (collision(tuyauX, 0, 40, trouY - 60, 48, y - 12, 24, 24)) perdu = true\n    if (collision(tuyauX, trouY + 60, 40, canvas.height - trouY - 60, 48, y - 12, 24, 24)) perdu = true\n  }\n\n  ctx.fillStyle = 'limegreen'\n  ctx.fillRect(tuyauX, 0, 40, trouY - 60)\n  ctx.fillRect(tuyauX, trouY + 60, 40, canvas.height - trouY - 60)\n  ctx.beginPath()\n  ctx.arc(60, y, 12, 0, Math.PI * 2)\n  ctx.fillStyle = 'gold'\n  ctx.fill()\n\n  ctx.fillStyle = 'white'\n  ctx.font = '20px sans-serif'\n  // Ton code ici : affiche le score avec ctx.fillText\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'score++\ncompte = true',
+          "ctx.fillText(`Score : ${score}`, 10, 30)",
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /score/) && has(code, /ctx\.fillText\s*\(/) && has(code, /collision\s*\(/)
+            ? ok('Flappy est complet — gravité, tuyaux, score, tout y est ! 🏆')
+            : fail('Augmente score au passage du tuyau, et affiche-le avec ctx.fillText.'),
+      },
+    ],
+  },
+  // ============================================================
+  // PLATEFORME — physique de saut + atterrissage sur des plateformes
+  // ============================================================
+  {
+    id: 'plateforme',
+    title: 'Plateforme',
+    emoji: '🟠',
+    description: 'Saute de plateforme en plateforme sans tomber dans le vide.',
+    difficulty: 'Intermédiaire',
+    color: 'from-cyan-400 to-blue-500',
+    steps: [
+      {
+        id: 'plat-1',
+        trackId: 'plateforme',
+        title: 'Sauter et retomber',
+        emoji: '🦘',
+        xp: 20,
+        intro:
+          "Comme dans Flappy, vitesseY simule la gravité. Ici, le joueur ne peut sauter (vitesseY = -9) que quand il touche le sol (y >= 360), sinon il resterait collé en l'air à chaque pression.",
+        task:
+          "Applique la gravité (vitesseY += 0.5, y += vitesseY), empêche de traverser le sol (si y > 360, y = 360 et vitesseY = 0), et saute avec espace seulement quand y >= 360.",
+        starterCode:
+          "let x = 50\nlet y = 360\nlet vitesseY = 0\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  // Ton code ici : applique la gravité, bloque au sol (y = 360), et saute sur espace si au sol\n\n  ctx.fillStyle = 'orange'\n  ctx.fillRect(x, y - 20, 20, 20)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'vitesseY += 0.5\ny += vitesseY\nif (y > 360) {\n  y = 360\n  vitesseY = 0\n}\nif (estAppuyee(\' \') && y >= 360) {\n  vitesseY = -9\n}',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /vitesseY/) && has(code, /estAppuyee\s*\(\s*['"] ['"]/)
+            ? ok('Un saut qui retombe bien au sol, jamais bloqué en l\'air ! 🦘')
+            : fail('Applique la gravité à vitesseY/y, bloque au sol, et ne saute que si y >= 360.'),
+      },
+      {
+        id: 'plat-2',
+        trackId: 'plateforme',
+        title: 'Une plateforme fixe',
+        emoji: '🧱',
+        xp: 20,
+        intro:
+          "Pour atterrir sur une plateforme en l'air (pas seulement le sol), vérifie collision() avec elle : si le joueur tombe dessus, pose-le sur son sommet (y = plateforme.y) et arrête sa chute (vitesseY = 0).",
+        task:
+          "Ajoute une plateforme { x: 100, y: 280, largeur: 100 }. Si collision() avec le joueur et qu'il tombe (vitesseY > 0), pose-le dessus (y = plateforme.y, vitesseY = 0).",
+        starterCode:
+          "let x = 50\nlet y = 360\nlet vitesseY = 0\nconst plateforme = { x: 100, y: 280, largeur: 100 }\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  if (estAppuyee('ArrowLeft')) x -= 3\n  if (estAppuyee('ArrowRight')) x += 3\n\n  vitesseY += 0.5\n  y += vitesseY\n  if (y > 360) {\n    y = 360\n    vitesseY = 0\n  }\n  if (estAppuyee(' ') && y >= 360) vitesseY = -9\n\n  // Ton code ici : si collision() avec la plateforme et vitesseY > 0, pose le joueur dessus\n\n  ctx.fillStyle = 'skyblue'\n  ctx.fillRect(plateforme.x, plateforme.y, plateforme.largeur, 10)\n  ctx.fillStyle = 'orange'\n  ctx.fillRect(x, y - 20, 20, 20)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'if (vitesseY > 0 && collision(plateforme.x, plateforme.y, plateforme.largeur, 10, x, y - 20, 20, 20)) {\n  y = plateforme.y\n  vitesseY = 0\n}',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /collision\s*\(/) && has(code, /vitesseY\s*=\s*0/)
+            ? ok('Un atterrissage tout en douceur sur la plateforme ! 🧱')
+            : fail('Utilise collision() avec la plateforme, et remets vitesseY à 0 en atterrissant dessus.'),
+      },
+      {
+        id: 'plat-3',
+        trackId: 'plateforme',
+        title: 'Plusieurs plateformes',
+        emoji: '🪜',
+        xp: 25,
+        intro:
+          "Comme pour les briques ou les ennemis, un tableau de plateformes permet d'en avoir plusieurs : parcours-les toutes avec for...of pour vérifier l'atterrissage sur chacune.",
+        task:
+          'Remplis plateformes avec 3 objets { x, y, largeur } différents, dessine-les toutes, et vérifie l\'atterrissage sur chacune avec une boucle for...of.',
+        starterCode:
+          "let x = 50\nlet y = 360\nlet vitesseY = 0\nlet plateformes = [\n  // Ton code ici : ajoute 3 objets { x, y, largeur } à ce tableau\n]\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  if (estAppuyee('ArrowLeft')) x -= 3\n  if (estAppuyee('ArrowRight')) x += 3\n\n  vitesseY += 0.5\n  y += vitesseY\n  if (y > 360) {\n    y = 360\n    vitesseY = 0\n  }\n  if (estAppuyee(' ') && y >= 360) vitesseY = -9\n\n  for (const p of plateformes) {\n    if (vitesseY > 0 && collision(p.x, p.y, p.largeur, 10, x, y - 20, 20, 20)) {\n      y = p.y\n      vitesseY = 0\n    }\n    ctx.fillStyle = 'skyblue'\n    ctx.fillRect(p.x, p.y, p.largeur, 10)\n  }\n\n  ctx.fillStyle = 'orange'\n  ctx.fillRect(x, y - 20, 20, 20)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          '{ x: 20, y: 300, largeur: 80 },\n{ x: 150, y: 240, largeur: 80 },\n{ x: 60, y: 180, largeur: 80 },',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /plateformes\s*=\s*\[/) && has(code, /for\s*\(/) && has(code, /collision\s*\(/)
+            ? ok('Un vrai parcours de plateformes à escalader ! 🪜')
+            : fail('Remplis le tableau plateformes avec 3 objets { x, y, largeur }.'),
+      },
+      {
+        id: 'plat-4',
+        trackId: 'plateforme',
+        title: 'Ton jeu de plateforme complet',
+        emoji: '🏆',
+        xp: 40,
+        intro:
+          "Ajoute un drapeau d'arrivée : un rectangle en haut de la dernière plateforme. Si le joueur le touche avec collision(), affiche \"Gagné !\" avec ctx.fillText.",
+        task: 'Ajoute un drapeau, détecte le contact avec collision(), et affiche "Gagné !" avec ctx.fillText.',
+        starterCode:
+          "let x = 50\nlet y = 360\nlet vitesseY = 0\nlet plateformes = [\n  { x: 20, y: 300, largeur: 80 },\n  { x: 150, y: 240, largeur: 80 },\n  { x: 60, y: 180, largeur: 80 },\n]\nlet drapeau = { x: 90, y: 150, largeur: 20, hauteur: 30 }\nlet gagne = false\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  if (!gagne) {\n    if (estAppuyee('ArrowLeft')) x -= 3\n    if (estAppuyee('ArrowRight')) x += 3\n\n    vitesseY += 0.5\n    y += vitesseY\n    if (y > 360) {\n      y = 360\n      vitesseY = 0\n    }\n    if (estAppuyee(' ') && y >= 360) vitesseY = -9\n\n    for (const p of plateformes) {\n      if (vitesseY > 0 && collision(p.x, p.y, p.largeur, 10, x, y - 20, 20, 20)) {\n        y = p.y\n        vitesseY = 0\n      }\n    }\n\n    // Ton code ici : si collision() avec le drapeau, passe gagne à true\n  }\n\n  for (const p of plateformes) {\n    ctx.fillStyle = 'skyblue'\n    ctx.fillRect(p.x, p.y, p.largeur, 10)\n  }\n  ctx.fillStyle = 'gold'\n  ctx.fillRect(drapeau.x, drapeau.y, drapeau.largeur, drapeau.hauteur)\n  ctx.fillStyle = 'orange'\n  ctx.fillRect(x, y - 20, 20, 20)\n\n  if (gagne) {\n    // Ton code ici : affiche \"Gagné !\" avec ctx.fillText\n  }\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'if (collision(drapeau.x, drapeau.y, drapeau.largeur, drapeau.hauteur, x, y - 20, 20, 20)) {\n  gagne = true\n}',
+          "ctx.fillStyle = 'white'\nctx.font = '24px sans-serif'\nctx.fillText('Gagné !', 100, 200)",
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /collision\s*\(/) && has(code, /gagne/) && has(code, /ctx\.fillText\s*\(/)
+            ? ok('Sommet atteint — ton parcours de plateforme est complet ! 🏆')
+            : fail('Détecte le contact avec le drapeau (collision), et affiche "Gagné !" avec ctx.fillText.'),
+      },
+    ],
+  },
+  // ============================================================
+  // LABYRINTHE — une carte 2D comme donnée de niveau
+  // ============================================================
+  {
+    id: 'labyrinthe',
+    title: 'Labyrinthe',
+    emoji: '🌀',
+    description: 'Une carte à lire comme un plan, un chemin à trouver jusqu\'à la sortie.',
+    difficulty: 'Intermédiaire',
+    color: 'from-teal-400 to-emerald-600',
+    steps: [
+      {
+        id: 'laby-1',
+        trackId: 'labyrinthe',
+        title: 'Lire la carte',
+        emoji: '🗺️',
+        xp: 20,
+        intro:
+          "carte est un tableau 2D : 1 pour un mur, 0 pour une case libre. Chaque case fait 30 pixels. Parcours carte avec une double boucle et dessine un mur (fillRect) partout où il vaut 1.",
+        task: 'Dessine les murs du labyrinthe : pour chaque carte[ligne][col] === 1, dessine un carré à (col * 30, ligne * 30).',
+        starterCode:
+          "const carte = [\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],\n  [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],\n  [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],\n  [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],\n  [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],\n  [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],\n  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],\n  [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n]\n\n// Ton code ici : parcours carte avec une double boucle, dessine un mur (fillRect) où c'est un 1\n",
+        hints: [
+          "ctx.fillStyle = 'slategray'\nfor (let ligne = 0; ligne < carte.length; ligne++) {\n  for (let col = 0; col < carte[ligne].length; col++) {\n    if (carte[ligne][col] === 1) {\n      ctx.fillRect(col * 30, ligne * 30, 30, 30)\n    }\n  }\n}",
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /carte\[/) && has(code, /ctx\.fillRect\s*\(/)
+            ? ok("Le plan du labyrinthe prend forme sur l'écran ! 🗺️")
+            : fail('Parcours le tableau carte avec deux boucles, et dessine un mur où la valeur est 1.'),
+      },
+      {
+        id: 'laby-2',
+        trackId: 'labyrinthe',
+        title: 'Bouger sans traverser les murs',
+        emoji: '🚶',
+        xp: 25,
+        intro:
+          "Comme le serpent, le joueur avance case par case (tick-based avec un compteur). Avant de bouger, vérifie que la case de destination dans carte n'est pas un mur (carte[ligne][col] === 0).",
+        task:
+          'Sur les flèches, calcule la case de destination ; si carte[ligne][col] === 0 (pas un mur), déplace joueurCol/joueurLigne, mais seulement quand compteur % 8 === 0.',
+        starterCode:
+          "const carte = [\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],\n  [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],\n  [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],\n  [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],\n  [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],\n  [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],\n  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],\n  [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n]\nlet joueurCol = 1\nlet joueurLigne = 1\nlet compteur = 0\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  compteur++\n\n  if (compteur % 8 === 0) {\n    let col = joueurCol\n    let ligne = joueurLigne\n    if (estAppuyee('ArrowLeft')) col--\n    if (estAppuyee('ArrowRight')) col++\n    if (estAppuyee('ArrowUp')) ligne--\n    if (estAppuyee('ArrowDown')) ligne++\n\n    // Ton code ici : si carte[ligne][col] === 0, déplace joueurCol/joueurLigne\n  }\n\n  ctx.fillStyle = 'slategray'\n  for (let ligne = 0; ligne < carte.length; ligne++) {\n    for (let col = 0; col < carte[ligne].length; col++) {\n      if (carte[ligne][col] === 1) ctx.fillRect(col * 30, ligne * 30, 30, 30)\n    }\n  }\n  ctx.fillStyle = 'gold'\n  ctx.fillRect(joueurCol * 30 + 5, joueurLigne * 30 + 5, 20, 20)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'if (carte[ligne][col] === 0) {\n  joueurCol = col\n  joueurLigne = ligne\n}',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /carte\[ligne\]\[col\]\s*===\s*0/) && has(code, /estAppuyee\s*\(/)
+            ? ok('Un joueur qui respecte les murs du labyrinthe ! 🚶')
+            : fail('Vérifie carte[ligne][col] === 0 avant de déplacer joueurCol/joueurLigne.'),
+      },
+      {
+        id: 'laby-3',
+        trackId: 'labyrinthe',
+        title: 'Arriver à la sortie',
+        emoji: '🏁',
+        xp: 25,
+        intro:
+          'La sortie est une case précise (col 8, ligne 8 dans cette carte). Si le joueur y arrive, passe gagne à true.',
+        task: "Vérifie si joueurCol === 8 et joueurLigne === 8 après un déplacement ; si oui, passe gagne à true.",
+        starterCode:
+          "const carte = [\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],\n  [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],\n  [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],\n  [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],\n  [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],\n  [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],\n  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],\n  [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n]\nlet joueurCol = 1\nlet joueurLigne = 1\nlet compteur = 0\nlet gagne = false\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  compteur++\n\n  if (!gagne && compteur % 8 === 0) {\n    let col = joueurCol\n    let ligne = joueurLigne\n    if (estAppuyee('ArrowLeft')) col--\n    if (estAppuyee('ArrowRight')) col++\n    if (estAppuyee('ArrowUp')) ligne--\n    if (estAppuyee('ArrowDown')) ligne++\n\n    if (carte[ligne][col] === 0) {\n      joueurCol = col\n      joueurLigne = ligne\n    }\n\n    // Ton code ici : si joueurCol === 8 et joueurLigne === 8, passe gagne à true\n  }\n\n  ctx.fillStyle = 'slategray'\n  for (let ligne = 0; ligne < carte.length; ligne++) {\n    for (let col = 0; col < carte[ligne].length; col++) {\n      if (carte[ligne][col] === 1) ctx.fillRect(col * 30, ligne * 30, 30, 30)\n    }\n  }\n  ctx.fillStyle = 'limegreen'\n  ctx.fillRect(8 * 30 + 5, 8 * 30 + 5, 20, 20)\n  ctx.fillStyle = 'gold'\n  ctx.fillRect(joueurCol * 30 + 5, joueurLigne * 30 + 5, 20, 20)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'if (joueurCol === 8 && joueurLigne === 8) {\n  gagne = true\n}',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /joueurCol\s*===\s*8/) && has(code, /gagne\s*=\s*true/)
+            ? ok('La sortie est détectée — plus qu\'à afficher la victoire ! 🏁')
+            : fail('Vérifie joueurCol === 8 et joueurLigne === 8, et passe gagne à true.'),
+      },
+      {
+        id: 'laby-4',
+        trackId: 'labyrinthe',
+        title: 'Ton labyrinthe complet',
+        emoji: '🏆',
+        xp: 40,
+        intro: 'Affiche "Sorti !" avec ctx.fillText quand gagne est vrai.',
+        task: 'Affiche un message de victoire avec ctx.fillText quand gagne est vrai.',
+        starterCode:
+          "const carte = [\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],\n  [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],\n  [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],\n  [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],\n  [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],\n  [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],\n  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],\n  [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],\n  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],\n]\nlet joueurCol = 1\nlet joueurLigne = 1\nlet compteur = 0\nlet gagne = false\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  compteur++\n\n  if (!gagne && compteur % 8 === 0) {\n    let col = joueurCol\n    let ligne = joueurLigne\n    if (estAppuyee('ArrowLeft')) col--\n    if (estAppuyee('ArrowRight')) col++\n    if (estAppuyee('ArrowUp')) ligne--\n    if (estAppuyee('ArrowDown')) ligne++\n\n    if (carte[ligne][col] === 0) {\n      joueurCol = col\n      joueurLigne = ligne\n    }\n    if (joueurCol === 8 && joueurLigne === 8) {\n      gagne = true\n    }\n  }\n\n  ctx.fillStyle = 'slategray'\n  for (let ligne = 0; ligne < carte.length; ligne++) {\n    for (let col = 0; col < carte[ligne].length; col++) {\n      if (carte[ligne][col] === 1) ctx.fillRect(col * 30, ligne * 30, 30, 30)\n    }\n  }\n  ctx.fillStyle = 'limegreen'\n  ctx.fillRect(8 * 30 + 5, 8 * 30 + 5, 20, 20)\n  ctx.fillStyle = 'gold'\n  ctx.fillRect(joueurCol * 30 + 5, joueurLigne * 30 + 5, 20, 20)\n\n  if (gagne) {\n    // Ton code ici : affiche \"Sorti !\" avec ctx.fillText\n  }\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          "ctx.fillStyle = 'white'\nctx.font = '28px sans-serif'\nctx.fillText('Sorti !', 90, 150)",
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /gagne/) && has(code, /ctx\.fillText\s*\(/) && has(code, /carte\[/)
+            ? ok('Labyrinthe résolu — carte lue, chemin trouvé, sortie atteinte ! 🏆')
+            : fail('Affiche un message avec ctx.fillText quand gagne est vrai.'),
+      },
+    ],
+  },
+  // ============================================================
+  // CLICKER — clic, économie et revenu automatique (jeu incrémental)
+  // ============================================================
+  {
+    id: 'clicker',
+    title: 'Clicker',
+    emoji: '💰',
+    description: 'Clique, gagne des points, investis pour que ça rapporte tout seul.',
+    difficulty: 'Débutant',
+    color: 'from-yellow-400 to-amber-600',
+    steps: [
+      {
+        id: 'clicker-1',
+        trackId: 'clicker',
+        title: 'Cliquer pour gagner des points',
+        emoji: '👆',
+        xp: 15,
+        controls: 'none',
+        intro:
+          "Un jeu incrémental (\"clicker\") repose sur une seule idée : chaque clic rapporte des points. Détecte le clic sur le bouton doré, et augmente points.",
+        task: 'Au clic sur le bouton, augmente points de 1, et affiche points avec ctx.fillText.',
+        starterCode:
+          "let points = 0\n\nfunction dessiner() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  ctx.fillStyle = 'gold'\n  ctx.beginPath()\n  ctx.arc(150, 200, 60, 0, Math.PI * 2)\n  ctx.fill()\n\n  ctx.fillStyle = 'white'\n  ctx.font = '20px sans-serif'\n  // Ton code ici : affiche points avec ctx.fillText\n}\n\ncanvas.addEventListener('click', function (e) {\n  const distance = Math.hypot(e.offsetX - 150, e.offsetY - 200)\n  if (distance < 60) {\n    // Ton code ici : augmente points\n  }\n  dessiner()\n})\n\ndessiner()\n",
+        hints: ['points++', "ctx.fillText(`Points : ${points}`, 10, 30)"],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /points\s*(\+\+|\+=)/) && has(code, /ctx\.fillText\s*\(/)
+            ? ok('Premiers points gagnés au clic ! 👆')
+            : fail('Augmente points au clic sur le bouton, et affiche-le avec ctx.fillText.'),
+      },
+      {
+        id: 'clicker-2',
+        trackId: 'clicker',
+        title: 'Un générateur automatique',
+        emoji: '⚙️',
+        xp: 20,
+        controls: 'none',
+        intro:
+          "autoParSeconde représente les points gagnés automatiquement chaque seconde. Avec un compteur d'images (le jeu tourne à ~60 images/seconde), ajoute autoParSeconde à points une fois toutes les 60 images.",
+        task: 'Ajoute autoParSeconde à points une fois par seconde (compteur % 60 === 0) dans une boucle animée.',
+        starterCode:
+          "let points = 0\nlet autoParSeconde = 1\nlet compteur = 0\n\nfunction dessiner() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  ctx.fillStyle = 'gold'\n  ctx.beginPath()\n  ctx.arc(150, 200, 60, 0, Math.PI * 2)\n  ctx.fill()\n\n  ctx.fillStyle = 'white'\n  ctx.font = '20px sans-serif'\n  ctx.fillText(`Points : ${Math.floor(points)}`, 10, 30)\n}\n\ncanvas.addEventListener('click', function (e) {\n  const distance = Math.hypot(e.offsetX - 150, e.offsetY - 200)\n  if (distance < 60) points++\n  dessiner()\n})\n\nfunction boucle() {\n  compteur++\n\n  // Ton code ici : toutes les 60 images, ajoute autoParSeconde à points\n\n  dessiner()\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'if (compteur % 60 === 0) {\n  points += autoParSeconde\n}',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /autoParSeconde/) && has(code, /%\s*60/)
+            ? ok('Ça rapporte même sans cliquer, un vrai clicker ! ⚙️')
+            : fail('Ajoute autoParSeconde à points une fois par seconde (compteur % 60 === 0).'),
+      },
+      {
+        id: 'clicker-3',
+        trackId: 'clicker',
+        title: 'Une boutique pour améliorer',
+        emoji: '🏪',
+        xp: 25,
+        controls: 'none',
+        intro:
+          "Un deuxième bouton (la boutique) coûte prix points. Si le joueur clique dessus et a assez de points, retire prix de points, augmente autoParSeconde, et augmente prix pour le prochain achat.",
+        task:
+          'Au clic sur la boutique, si points >= prix : points -= prix, autoParSeconde++, et prix *= 2 (le prochain achat coûte plus cher).',
+        starterCode:
+          "let points = 0\nlet autoParSeconde = 1\nlet prix = 10\nlet compteur = 0\n\nfunction dessiner() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  ctx.fillStyle = 'gold'\n  ctx.beginPath()\n  ctx.arc(150, 150, 50, 0, Math.PI * 2)\n  ctx.fill()\n\n  ctx.fillStyle = 'mediumseagreen'\n  ctx.fillRect(75, 280, 150, 60)\n\n  ctx.fillStyle = 'white'\n  ctx.font = '16px sans-serif'\n  ctx.fillText(`Points : ${Math.floor(points)}`, 10, 30)\n  ctx.fillText(`Boutique : ${prix} pts`, 90, 315)\n}\n\ncanvas.addEventListener('click', function (e) {\n  const distanceBouton = Math.hypot(e.offsetX - 150, e.offsetY - 150)\n  if (distanceBouton < 50) points++\n\n  const dansBoutique = e.offsetX > 75 && e.offsetX < 225 && e.offsetY > 280 && e.offsetY < 340\n  if (dansBoutique) {\n    // Ton code ici : si points >= prix, achète (points -= prix, autoParSeconde++, prix *= 2)\n  }\n\n  dessiner()\n})\n\nfunction boucle() {\n  compteur++\n  if (compteur % 60 === 0) points += autoParSeconde\n  dessiner()\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: [
+          'if (points >= prix) {\n  points -= prix\n  autoParSeconde++\n  prix *= 2\n}',
+        ],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /prix/) && has(code, /autoParSeconde\s*(\+\+|\+=)/) && has(code, /points\s*-=/)
+            ? ok('Une vraie petite économie qui s\'auto-alimente ! 🏪')
+            : fail('Si points >= prix, retire prix, augmente autoParSeconde, et augmente prix.'),
+      },
+      {
+        id: 'clicker-4',
+        trackId: 'clicker',
+        title: 'Ton Clicker complet',
+        emoji: '🏆',
+        xp: 40,
+        controls: 'none',
+        intro: "Affiche aussi autoParSeconde à l'écran, pour voir sa petite économie grandir.",
+        task: 'Affiche `${autoParSeconde} pts/seconde` avec ctx.fillText, en plus du score et du prix de la boutique.',
+        starterCode:
+          "let points = 0\nlet autoParSeconde = 1\nlet prix = 10\nlet compteur = 0\n\nfunction dessiner() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  ctx.fillStyle = 'gold'\n  ctx.beginPath()\n  ctx.arc(150, 150, 50, 0, Math.PI * 2)\n  ctx.fill()\n\n  ctx.fillStyle = 'mediumseagreen'\n  ctx.fillRect(75, 280, 150, 60)\n\n  ctx.fillStyle = 'white'\n  ctx.font = '16px sans-serif'\n  ctx.fillText(`Points : ${Math.floor(points)}`, 10, 30)\n  ctx.fillText(`Boutique : ${prix} pts`, 90, 315)\n  // Ton code ici : affiche `${autoParSeconde} pts/seconde` avec ctx.fillText\n}\n\ncanvas.addEventListener('click', function (e) {\n  const distanceBouton = Math.hypot(e.offsetX - 150, e.offsetY - 150)\n  if (distanceBouton < 50) points++\n\n  const dansBoutique = e.offsetX > 75 && e.offsetX < 225 && e.offsetY > 280 && e.offsetY < 340\n  if (dansBoutique && points >= prix) {\n    points -= prix\n    autoParSeconde++\n    prix *= 2\n  }\n\n  dessiner()\n})\n\nfunction boucle() {\n  compteur++\n  if (compteur % 60 === 0) points += autoParSeconde\n  dessiner()\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+        hints: ["ctx.fillText(`${autoParSeconde} pts/seconde`, 10, 55)"],
+        check: (_stdout, _get, _c, _f, _d, code) =>
+          has(code, /autoParSeconde/) && has(code, /ctx\.fillText\s*\(/) && has(code, /prix/)
+            ? ok('Ton Clicker est complet — clique, investis, regarde ça grandir ! 🏆')
+            : fail("Affiche autoParSeconde avec ctx.fillText, en plus du score et du prix."),
+      },
+    ],
+  },
+  // ============================================================
   // BAC À SABLE — aucune mission, code libre
   // ============================================================
   {
