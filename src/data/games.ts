@@ -57,9 +57,14 @@ export const GAME_TRACKS: GameTrack[] = [
           "ctx.beginPath()\nctx.arc(x, 200, 15, 0, Math.PI * 2)\nctx.fillStyle = 'cyan'\nctx.fill()",
         ],
         check: (_stdout, _get, _c, _f, _d, code) =>
-          has(code, /requestAnimationFrame\s*\(/) && has(code, /ctx\.arc\s*\(/) && has(code, /clearRect/)
+          has(code, /requestAnimationFrame\s*\(/) &&
+          has(code, /ctx\.arc\s*\(/) &&
+          has(code, /clearRect/) &&
+          has(code, /ctx\.beginPath\s*\(\s*\)/)
             ? ok('Ta première animation ! Le cercle glisse tout seul. 🌀')
-            : fail('Il faut requestAnimationFrame, clearRect, et ctx.arc pour dessiner et animer le cercle.'),
+            : fail(
+                'Il faut requestAnimationFrame, clearRect, ctx.beginPath() (avec ses parenthèses !) et ctx.arc pour dessiner et animer le cercle.',
+              ),
       },
       {
         id: 'game-3',
