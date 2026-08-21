@@ -159,6 +159,172 @@ export const GAME_LEVELS: GameLevel[] = [
             'Il manque un ingrédient : vérifie que tu utilises collision(), le score qui augmente, et ctx.fillText() pour l\'afficher.',
           ),
   },
+  // ============================================================
+  // CASSE-BRIQUES — vitesse en deux directions (rebond) + tableau d'objets
+  // ============================================================
+  {
+    id: 'breakout-1',
+    title: 'Une balle qui rebondit',
+    emoji: '⚪',
+    xp: 20,
+    chapter: 'Chapitre 4 · Casse-briques',
+    intro:
+      "Dans Casse-briques, la balle avance en ligne droite : dx et dy sont sa vitesse horizontale et verticale. À chaque image, x += dx et y += dy. Quand elle touche un bord, on inverse le signe de la vitesse correspondante : dx = -dx.",
+    task:
+      "Fais rebondir une balle sur les murs : avance-la avec dx/dy, puis inverse dx si elle touche un bord gauche/droit (x < 0 ou x > canvas.width), et inverse dy si elle touche le haut (y < 0).",
+    starterCode:
+      "let x = 150\nlet y = 200\nlet dx = 3\nlet dy = 3\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  x += dx\n  y += dy\n\n  // Ton code ici : inverse dx si la balle touche un bord gauche/droit,\n  // et dy si elle touche le haut\n\n  ctx.beginPath()\n  ctx.arc(x, y, 8, 0, Math.PI * 2)\n  ctx.fillStyle = 'white'\n  ctx.fill()\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: ["if (x < 0 || x > canvas.width) {\n  dx = -dx\n}\nif (y < 0) {\n  dy = -dy\n}"],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /dx\s*=\s*-\s*dx/) && has(code, /dy\s*=\s*-\s*dy/)
+        ? ok('La balle rebondit sur les murs comme un vrai Casse-briques ! ⚪')
+        : fail('Inverse dx (dx = -dx) sur un bord gauche/droit, et dy (dy = -dy) en haut.'),
+  },
+  {
+    id: 'breakout-2',
+    title: 'La raquette qui rattrape',
+    emoji: '🏓',
+    xp: 20,
+    chapter: 'Chapitre 4 · Casse-briques',
+    intro:
+      "Ajoute une raquette contrôlée au clavier. Si la balle la touche (avec collision()), fais-la remonter en inversant dy — sinon elle tombe dans le vide, comme au vrai Casse-briques.",
+    task:
+      "Bouge une raquette avec estAppuyee('ArrowLeft'/'ArrowRight'), et utilise collision() pour faire rebondir la balle dessus.",
+    starterCode:
+      "let x = 150\nlet y = 200\nlet dx = 3\nlet dy = 3\nlet raquetteX = 125\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  // Ton code ici : bouge raquetteX avec estAppuyee\n\n  x += dx\n  y += dy\n  if (x < 0 || x > canvas.width) dx = -dx\n  if (y < 0) dy = -dy\n\n  // Ton code ici : si collision() entre la balle et la raquette, inverse dy\n\n  ctx.fillStyle = 'orange'\n  ctx.fillRect(raquetteX, 380, 60, 12)\n  ctx.beginPath()\n  ctx.arc(x, y, 8, 0, Math.PI * 2)\n  ctx.fillStyle = 'white'\n  ctx.fill()\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: [
+      "if (estAppuyee('ArrowLeft')) raquetteX -= 5\nif (estAppuyee('ArrowRight')) raquetteX += 5",
+      'if (collision(raquetteX, 380, 60, 12, x - 8, y - 8, 16, 16)) {\n  dy = -dy\n}',
+    ],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /estAppuyee\s*\(/) && has(code, /collision\s*\(/)
+        ? ok('Une vraie raquette jouable, la balle ne tombe plus ! 🏓')
+        : fail('Utilise estAppuyee() pour bouger la raquette, et collision() pour la faire rebondir dessus.'),
+  },
+  {
+    id: 'breakout-3',
+    title: 'Une grille de briques qui se cassent',
+    emoji: '🧱',
+    xp: 25,
+    chapter: 'Chapitre 4 · Casse-briques',
+    intro:
+      "Pour gérer plusieurs briques à la fois, on les stocke dans un tableau (array). Chaque brique est un objet { x, y, cassee: false }. On les dessine toutes avec une boucle for...of, et on vérifie la collision avec chacune.",
+    task:
+      'Complète la double boucle qui remplit le tableau briques (5 colonnes, 3 lignes) avec briques.push({...}), puis dans la boucle de jeu, dessine chaque brique non cassée et marque-la cassée (cassee = true) si la balle la touche.',
+    starterCode:
+      "let briques = []\nfor (let col = 0; col < 5; col++) {\n  for (let ligne = 0; ligne < 3; ligne++) {\n    // Ton code ici : ajoute { x: col * 55 + 10, y: ligne * 20 + 10, cassee: false } à briques\n  }\n}\n\nlet x = 150, y = 200, dx = 3, dy = 3, raquetteX = 125\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  if (estAppuyee('ArrowLeft')) raquetteX -= 5\n  if (estAppuyee('ArrowRight')) raquetteX += 5\n\n  x += dx\n  y += dy\n  if (x < 0 || x > canvas.width) dx = -dx\n  if (y < 0) dy = -dy\n  if (collision(raquetteX, 380, 60, 12, x - 8, y - 8, 16, 16)) dy = -dy\n\n  for (const brique of briques) {\n    if (!brique.cassee) {\n      // Ton code ici : dessine la brique avec ctx.fillRect, et si collision()\n      // avec la balle, casse-la (cassee = true) et inverse dy\n    }\n  }\n\n  ctx.fillStyle = 'orange'\n  ctx.fillRect(raquetteX, 380, 60, 12)\n  ctx.beginPath()\n  ctx.arc(x, y, 8, 0, Math.PI * 2)\n  ctx.fillStyle = 'white'\n  ctx.fill()\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: [
+      'briques.push({ x: col * 55 + 10, y: ligne * 20 + 10, cassee: false })',
+      "ctx.fillStyle = 'skyblue'\nctx.fillRect(brique.x, brique.y, 45, 15)\nif (collision(brique.x, brique.y, 45, 15, x - 8, y - 8, 16, 16)) {\n  brique.cassee = true\n  dy = -dy\n}",
+    ],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /briques\.push\s*\(/) && has(code, /cassee\s*=\s*true/)
+        ? ok('Premières briques cassées — tout un tableau qui réagit au jeu ! 🧱')
+        : fail('Remplis briques avec briques.push({...}), et marque cassee = true au contact de la balle.'),
+  },
+  {
+    id: 'breakout-4',
+    title: 'Ton Casse-briques complet',
+    emoji: '🏆',
+    xp: 40,
+    chapter: 'Chapitre 4 · Casse-briques',
+    intro:
+      "Ajoute un score qui augmente à chaque brique cassée, affiche-le avec ctx.fillText, et vérifie la victoire avec briques.every(b => b.cassee) — vrai si TOUTES les briques du tableau sont cassées.",
+    task:
+      "Augmente score de 1 à chaque brique cassée, affiche-le avec ctx.fillText, et affiche \"Gagné !\" quand briques.every(b => b.cassee) est vrai.",
+    starterCode:
+      "let briques = []\nfor (let col = 0; col < 5; col++) {\n  for (let ligne = 0; ligne < 3; ligne++) {\n    briques.push({ x: col * 55 + 10, y: ligne * 20 + 10, cassee: false })\n  }\n}\n\nlet x = 150, y = 200, dx = 3, dy = 3, raquetteX = 125, score = 0\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n\n  if (estAppuyee('ArrowLeft')) raquetteX -= 5\n  if (estAppuyee('ArrowRight')) raquetteX += 5\n\n  x += dx\n  y += dy\n  if (x < 0 || x > canvas.width) dx = -dx\n  if (y < 0) dy = -dy\n  if (collision(raquetteX, 380, 60, 12, x - 8, y - 8, 16, 16)) dy = -dy\n\n  for (const brique of briques) {\n    if (!brique.cassee) {\n      ctx.fillStyle = 'skyblue'\n      ctx.fillRect(brique.x, brique.y, 45, 15)\n      if (collision(brique.x, brique.y, 45, 15, x - 8, y - 8, 16, 16)) {\n        brique.cassee = true\n        dy = -dy\n        // Ton code ici : augmente le score\n      }\n    }\n  }\n\n  ctx.fillStyle = 'orange'\n  ctx.fillRect(raquetteX, 380, 60, 12)\n  ctx.beginPath()\n  ctx.arc(x, y, 8, 0, Math.PI * 2)\n  ctx.fillStyle = 'white'\n  ctx.fill()\n\n  // Ton code ici : affiche le score avec ctx.fillText, et \"Gagné !\" si briques.every(b => b.cassee)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: [
+      'score = score + 1',
+      "ctx.fillStyle = 'white'\nctx.font = '16px sans-serif'\nctx.fillText(`Score : ${score}`, 10, 20)\nif (briques.every((b) => b.cassee)) {\n  ctx.fillText('Gagné !', 120, 200)\n}",
+    ],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /score/) && has(code, /ctx\.fillText\s*\(/) && has(code, /every\s*\(/)
+        ? ok('Casse-briques terminé — score, victoire, tout y est ! 🏆')
+        : fail("Il faut un score affiché avec ctx.fillText, et une victoire détectée avec briques.every()."),
+  },
+  // ============================================================
+  // SERPENT — mouvement par cases, tableau comme file du corps
+  // ============================================================
+  {
+    id: 'snake-1',
+    title: 'Bouger case par case',
+    emoji: '🟩',
+    xp: 20,
+    chapter: 'Chapitre 5 · Serpent',
+    intro:
+      "Le serpent avance sur une grille de cases de 20 pixels. Pour qu'il n'aille pas trop vite (le jeu tourne à ~60 images par seconde), on n'avance qu'une fois toutes les 8 images grâce à un compteur qui augmente à chaque image.",
+    task: "Fais avancer un carré vert case par case vers la droite (x += 20), mais seulement quand compteur % 8 === 0.",
+    starterCode:
+      "let x = 20\nlet y = 200\nlet compteur = 0\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  compteur++\n\n  // Ton code ici : si compteur % 8 === 0, avance x de 20\n\n  ctx.fillStyle = 'limegreen'\n  ctx.fillRect(x, y, 20, 20)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: ['if (compteur % 8 === 0) {\n  x = x + 20\n}'],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /compteur/) && has(code, /%\s*8/)
+        ? ok('Un mouvement case par case, la base du serpent ! 🟩')
+        : fail('Utilise compteur % 8 === 0 pour avancer x seulement de temps en temps.'),
+  },
+  {
+    id: 'snake-2',
+    title: 'Changer de direction',
+    emoji: '🕹️',
+    xp: 20,
+    chapter: 'Chapitre 5 · Serpent',
+    intro:
+      "dx et dy représentent la direction actuelle, en pas de 20 pixels (dx = 20 pour aller à droite, dx = -20 pour aller à gauche, etc). Les flèches changent dx/dy ; le déplacement lui-même reste au rythme du compteur.",
+    task:
+      "Utilise les flèches pour changer dx/dy par pas de 20 (une seule direction à la fois), puis avance x += dx et y += dy seulement quand compteur % 8 === 0.",
+    starterCode:
+      "let x = 100\nlet y = 200\nlet dx = 20\nlet dy = 0\nlet compteur = 0\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  compteur++\n\n  // Ton code ici : change dx/dy selon les flèches\n\n  if (compteur % 8 === 0) {\n    // Ton code ici : avance x et y avec dx et dy\n  }\n\n  ctx.fillStyle = 'limegreen'\n  ctx.fillRect(x, y, 20, 20)\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: [
+      "if (estAppuyee('ArrowLeft')) { dx = -20; dy = 0 }\nif (estAppuyee('ArrowRight')) { dx = 20; dy = 0 }\nif (estAppuyee('ArrowUp')) { dx = 0; dy = -20 }\nif (estAppuyee('ArrowDown')) { dx = 0; dy = 20 }",
+      'x += dx\ny += dy',
+    ],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /estAppuyee\s*\(/) && has(code, /dx\s*=/) && has(code, /dy\s*=/)
+        ? ok('Un serpent qui tourne dans les quatre directions ! 🕹️')
+        : fail('Change dx et dy selon les flèches (estAppuyee), puis avance x/y avec ces valeurs.'),
+  },
+  {
+    id: 'snake-3',
+    title: 'Le corps qui grandit en mangeant',
+    emoji: '🍏',
+    xp: 25,
+    chapter: 'Chapitre 5 · Serpent',
+    intro:
+      "Le corps du serpent est un tableau de segments { x, y }. À chaque déplacement, on ajoute une nouvelle tête au début avec unshift, et on retire la queue avec pop — sauf quand la tête vient de manger la pomme : là, on garde la queue (le serpent grandit), et hasard() replace la pomme ailleurs.",
+    task:
+      "À chaque tick, ajoute { x, y } au début de serpent avec unshift. Si la tête est sur la pomme, ne retire pas la queue et replace la pomme avec hasard() ; sinon, retire la queue avec pop().",
+    starterCode:
+      "let serpent = [{ x: 100, y: 200 }]\nlet dx = 20\nlet dy = 0\nlet compteur = 0\nlet pomme = { x: hasard(0, 14) * 20, y: hasard(0, 19) * 20 }\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  compteur++\n\n  if (estAppuyee('ArrowLeft')) { dx = -20; dy = 0 }\n  if (estAppuyee('ArrowRight')) { dx = 20; dy = 0 }\n  if (estAppuyee('ArrowUp')) { dx = 0; dy = -20 }\n  if (estAppuyee('ArrowDown')) { dx = 0; dy = 20 }\n\n  if (compteur % 8 === 0) {\n    const x = serpent[0].x + dx\n    const y = serpent[0].y + dy\n\n    // Ton code ici : unshift la nouvelle tête, gère la pomme mangée, sinon pop() la queue\n  }\n\n  ctx.fillStyle = 'red'\n  ctx.fillRect(pomme.x, pomme.y, 20, 20)\n  ctx.fillStyle = 'limegreen'\n  for (const segment of serpent) {\n    ctx.fillRect(segment.x, segment.y, 20, 20)\n  }\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: [
+      'serpent.unshift({ x, y })\nif (x === pomme.x && y === pomme.y) {\n  pomme.x = hasard(0, 14) * 20\n  pomme.y = hasard(0, 19) * 20\n} else {\n  serpent.pop()\n}',
+    ],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /unshift\s*\(/) && has(code, /pop\s*\(\)/) && has(code, /hasard\s*\(/)
+        ? ok('Le serpent grandit à chaque pomme mangée ! 🍏')
+        : fail('Utilise serpent.unshift() pour la tête, serpent.pop() pour la queue, et hasard() pour la nouvelle pomme.'),
+  },
+  {
+    id: 'snake-4',
+    title: 'Ton Serpent complet',
+    emoji: '🏆',
+    xp: 40,
+    chapter: 'Chapitre 5 · Serpent',
+    intro:
+      "Termine le jeu : si la tête touche un autre segment du corps, le serpent s'est mordu la queue — affiche \"Perdu !\" avec ctx.fillText. Affiche aussi serpent.length comme score, bien visible à l'écran.",
+    task:
+      'Vérifie si la nouvelle tête (x, y) touche un segment déjà présent dans serpent (avec serpent.some(...) par exemple) ; si oui, affiche "Perdu !". Affiche aussi le score (serpent.length) avec ctx.fillText.',
+    starterCode:
+      "let serpent = [{ x: 100, y: 200 }]\nlet dx = 20\nlet dy = 0\nlet compteur = 0\nlet pomme = { x: hasard(0, 14) * 20, y: hasard(0, 19) * 20 }\nlet perdu = false\n\nfunction boucle() {\n  ctx.clearRect(0, 0, canvas.width, canvas.height)\n  compteur++\n\n  if (!perdu) {\n    if (estAppuyee('ArrowLeft')) { dx = -20; dy = 0 }\n    if (estAppuyee('ArrowRight')) { dx = 20; dy = 0 }\n    if (estAppuyee('ArrowUp')) { dx = 0; dy = -20 }\n    if (estAppuyee('ArrowDown')) { dx = 0; dy = 20 }\n\n    if (compteur % 8 === 0) {\n      const x = serpent[0].x + dx\n      const y = serpent[0].y + dy\n\n      // Ton code ici : si (x, y) touche un segment de serpent, perdu = true\n\n      serpent.unshift({ x, y })\n      if (x === pomme.x && y === pomme.y) {\n        pomme.x = hasard(0, 14) * 20\n        pomme.y = hasard(0, 19) * 20\n      } else {\n        serpent.pop()\n      }\n    }\n  }\n\n  ctx.fillStyle = 'red'\n  ctx.fillRect(pomme.x, pomme.y, 20, 20)\n  ctx.fillStyle = 'limegreen'\n  for (const segment of serpent) {\n    ctx.fillRect(segment.x, segment.y, 20, 20)\n  }\n\n  ctx.fillStyle = 'white'\n  ctx.font = '16px sans-serif'\n  ctx.fillText(`Score : ${serpent.length}`, 10, 20)\n  // Ton code ici : si perdu, affiche \"Perdu !\" avec ctx.fillText\n\n  requestAnimationFrame(boucle)\n}\n\nboucle()\n",
+    hints: [
+      'if (serpent.some((s) => s.x === x && s.y === y)) {\n  perdu = true\n}',
+      "if (perdu) {\n  ctx.fillText('Perdu !', 120, 200)\n}",
+    ],
+    check: (_stdout, _get, _c, _f, _d, code) =>
+      has(code, /some\s*\(/) && has(code, /perdu/) && has(code, /ctx\.fillText\s*\(/)
+        ? ok('Serpent terminé — score, croissance, game over, un vrai jeu complet ! 🏆')
+        : fail('Détecte la collision avec serpent.some(), passe perdu à true, et affiche "Perdu !" avec ctx.fillText.'),
+  },
   {
     id: 'game-8',
     title: 'Bac à sable',
@@ -166,11 +332,11 @@ export const GAME_LEVELS: GameLevel[] = [
     xp: 15,
     chapter: 'Bonus',
     intro:
-      "Plus de mission imposée : c'est ton terrain de jeu. canvas, ctx, estAppuyee(), hasard() et collision() sont toujours là. Invente ton propre mini-jeu, ou remixe Attrape-pommes.",
+      "Plus de mission imposée : c'est ton terrain de jeu. canvas, ctx, estAppuyee(), hasard() et collision() sont toujours là. Invente ton propre mini-jeu, ou remixe Attrape-pommes, Casse-briques ou Serpent.",
     task: 'Code ce que tu veux, teste-le, recommence. Amuse-toi !',
     starterCode:
       "// Tout est permis ici : canvas, ctx, estAppuyee('ArrowLeft'|'ArrowRight'|'ArrowUp'|'ArrowDown'|' '),\n// hasard(min, max), collision(x1,y1,l1,h1,x2,y2,l2,h2), requestAnimationFrame(boucle)\n\n// Ton code ici\n",
-    hints: ["Recopie et modifie le code d'Attrape-pommes pour t'entraîner : change les couleurs, la vitesse, ajoute une deuxième pomme..."],
-    check: () => ok('Tu as testé ta création — direction le prochain module pour continuer à apprendre !'),
+    hints: ["Recopie et modifie le code d'Attrape-pommes, Casse-briques ou Serpent pour t'entraîner : change les couleurs, la vitesse, les règles..."],
+    check: () => ok('Tu as testé ta création — bravo pour tout ce chemin parcouru ! 🎉'),
   },
 ]
