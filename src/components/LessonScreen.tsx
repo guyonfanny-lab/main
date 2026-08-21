@@ -103,6 +103,14 @@ export default function LessonScreen({
     saveCode(lesson.id, value)
   }
 
+  function handleResetCode() {
+    if (window.confirm('Revenir au code de départ de ce niveau ? Tes modifications seront perdues.')) {
+      setCode(lesson.starterCode)
+      saveCode(lesson.id, lesson.starterCode)
+      setFeedback(null)
+    }
+  }
+
   function handleLibraryChange(value: string) {
     setLibraryCode(value)
     setLibrarySaved(false)
@@ -223,6 +231,15 @@ export default function LessonScreen({
         </div>
       )}
 
+      <div className="mb-1.5 flex justify-end">
+        <button
+          type="button"
+          onClick={handleResetCode}
+          className="text-xs font-semibold text-white/40 underline decoration-dotted underline-offset-4 active:text-white/70"
+        >
+          ↺ Revenir au code de départ
+        </button>
+      </div>
       <div className="mb-3 overflow-hidden rounded-xl border border-white/10">
         <CodeMirror
           value={code}
