@@ -6,8 +6,8 @@ import type { GameStep } from '../types'
 import { playError, playSuccess, playTap } from '../lib/sound'
 import type { CompleteLessonResult } from '../lib/storage'
 import { loadSavedCode, saveCode } from '../lib/codeStorage'
+import { BADGES } from '../data/badges'
 import GameCanvas, { type ConsoleLine } from './GameCanvas'
-import SuccessModal from './SuccessModal'
 
 interface GameLessonScreenProps {
   lesson: GameStep
@@ -47,7 +47,7 @@ export default function GameLessonScreen({
   const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null)
   const [hintsShown, setHintsShown] = useState(0)
-  const [successData, setSuccessData] = useState<CompleteLessonResult | null>(null)
+  const [completion, setCompletion] = useState<CompleteLessonResult | null>(null)
 
   function handleCodeChange(value: string) {
     setCode(value)
@@ -62,6 +62,7 @@ export default function GameLessonScreen({
     playTap(soundOn)
     setConsoleLines([])
     setFeedback(null)
+    setCompletion(null)
     setTestedCode(code)
     setRunId((n) => n + 1)
 
@@ -71,8 +72,9 @@ export default function GameLessonScreen({
     if (check.ok) {
       playSuccess(soundOn)
       fireConfetti()
-      const completion = onComplete(lesson)
-      window.setTimeout(() => setSuccessData(completion), 900)
+      // Shown inline (not a blocking modal) so the live game underneath stays visible —
+      // testing it live is the point, and a full-screen overlay would hide it.
+      setCompletion(onComplete(lesson))
     } else {
       playError(soundOn)
     }
@@ -182,21 +184,41 @@ export default function GameLessonScreen({
         ))}
       </div>
 
-      {successData && (
-        <SuccessModal
-          message={feedback?.message ?? ''}
-          xpGained={successData.xpGained}
-          newBadgeIds={successData.newlyEarnedBadges}
-          isLastLesson={isLastLesson}
-          finaleHeading={finaleHeading}
-          onContinue={() => {
-            if (nextLesson) {
-              onNextLesson(nextLesson.id)
-            } else {
-              onBack()
-            }
-          }}
-        />
+      {completion && (
+        <div className="mb-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3">
+          <p className="text-sm font-bold text-white">
+            {isLastLesson ? finaleHeading : 'Niveau réussi !'}
+          </p>
+          {completion.xpGained > 0 && (
+            <p className="mt-1.5 text-xs font-bold text-amber-300">✨ +{completion.xpGained} XP</p>
+          )}
+          {completion.newlyEarnedBadges.length > 0 && (
+            <div className="mt-2 space-y-1.5">
+              {BADGES.filter((b) => completion.newlyEarnedBadges.includes(b.id)).map((b) => (
+                <div key={b.id} className="flex items-center gap-2 rounded-lg bg-white/5 px-2.5 py-1.5">
+                  <span className="text-lg">{b.emoji}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white">{b.title}</p>
+                    <p className="text-[11px] text-white/50">{b.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (nextLesson) {
+                onNextLesson(nextLesson.id)
+              } else {
+                onBack()
+              }
+            }}
+            className="mt-3 w-full rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 py-2.5 text-center text-sm font-bold text-white active:scale-[0.98]"
+          >
+            {nextLesson ? 'Niveau suivant →' : 'Terminer'}
+          </button>
+        </div>
       )}
     </div>
   )
