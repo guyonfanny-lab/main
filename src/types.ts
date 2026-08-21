@@ -115,6 +115,12 @@ export interface GameStep extends Exercise {
   trackId: string
   /** 'none' hides the on-screen D-pad for click/tap-driven games (Morpion, Simon...) that don't use it. Defaults to 'dpad'. */
   controls?: 'dpad' | 'none'
+  /**
+   * false = a plain JS fundamentals exercise with no canvas to show (console.log output only) —
+   * hides GameCanvas's visible box/D-pad, and grades on the real console output it captured
+   * instead of only on source-code patterns. Defaults to true.
+   */
+  visual?: boolean
 }
 
 /** One standalone algorithmic challenge in the "Défis" tab. */

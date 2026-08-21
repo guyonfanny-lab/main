@@ -13,6 +13,8 @@ interface GameCanvasProps {
   onConsoleLine: (line: ConsoleLine) => void
   /** 'none' hides the on-screen D-pad for click/tap-driven games that don't use it. Defaults to 'dpad'. */
   controls?: 'dpad' | 'none'
+  /** True for plain JS fundamentals exercises: the iframe still runs (for console output), but its canvas box and D-pad aren't shown — there's nothing to draw. */
+  hidden?: boolean
 }
 
 interface TouchButtonProps {
@@ -44,7 +46,7 @@ function TouchButton({ label, big, onDown, onUp }: TouchButtonProps) {
   )
 }
 
-export default function GameCanvas({ code, runId, onConsoleLine, controls = 'dpad' }: GameCanvasProps) {
+export default function GameCanvas({ code, runId, onConsoleLine, controls = 'dpad', hidden = false }: GameCanvasProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
@@ -63,17 +65,26 @@ export default function GameCanvas({ code, runId, onConsoleLine, controls = 'dpa
     iframeRef.current?.contentWindow?.postMessage({ type: 'input', key, pressed }, '*')
   }, [])
 
+  const iframe = (
+    <iframe
+      key={runId}
+      ref={iframeRef}
+      srcDoc={buildGameSrcDoc(code)}
+      sandbox="allow-scripts"
+      title="Aperçu du jeu"
+      style={{ width: GAME_CANVAS_WIDTH, height: GAME_CANVAS_HEIGHT, border: 0 }}
+    />
+  )
+
+  if (hidden) {
+    // Still mounted (and still runs) so console output is captured — just nothing to draw here.
+    return <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>{iframe}</div>
+  }
+
   return (
     <div className="mb-3">
       <div className="flex justify-center overflow-hidden rounded-xl border border-white/10 bg-[#0f0f1a]">
-        <iframe
-          key={runId}
-          ref={iframeRef}
-          srcDoc={buildGameSrcDoc(code)}
-          sandbox="allow-scripts"
-          title="Aperçu du jeu"
-          style={{ width: GAME_CANVAS_WIDTH, height: GAME_CANVAS_HEIGHT, border: 0 }}
-        />
+        {iframe}
       </div>
 
       {controls === 'dpad' && (

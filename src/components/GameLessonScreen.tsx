@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import confetti from 'canvas-confetti'
@@ -48,6 +48,11 @@ export default function GameLessonScreen({
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null)
   const [hintsShown, setHintsShown] = useState(0)
   const [completion, setCompletion] = useState<CompleteLessonResult | null>(null)
+  const [running, setRunning] = useState(false)
+  // Mirrors consoleLines' log lines, but readable synchronously right after the run —
+  // React state updates from the postMessage handler aren't visible until the next render.
+  const stdoutRef = useRef<string[]>([])
+  const isVisual = lesson.visual !== false
 
   function handleCodeChange(value: string) {
     setCode(value)
@@ -63,18 +68,31 @@ export default function GameLessonScreen({
   }
 
   const handleConsoleLine = useCallback((line: ConsoleLine) => {
+    if (line.type === 'log') stdoutRef.current.push(line.text)
     setConsoleLines((prev) => [...prev.slice(-(MAX_CONSOLE_LINES - 1)), line])
   }, [])
 
-  function handleRun() {
+  async function handleRun() {
     playTap(soundOn)
     setConsoleLines([])
+    stdoutRef.current = []
     setFeedback(null)
     setCompletion(null)
     setTestedCode(code)
     setRunId((n) => n + 1)
 
-    const check = lesson.check('', () => undefined, [], [], [], code)
+    let check: { ok: boolean; message: string }
+    if (isVisual) {
+      check = lesson.check('', () => undefined, [], [], [], code)
+    } else {
+      // Fundamentals exercises have no live/animated loop — the whole snippet runs
+      // synchronously as soon as the iframe loads, so a short wait is enough to
+      // capture its real console output and grade on that instead of just source patterns.
+      setRunning(true)
+      await new Promise((resolve) => window.setTimeout(resolve, 500))
+      setRunning(false)
+      check = lesson.check(stdoutRef.current.join('\n'), () => undefined, [], [], [], code)
+    }
     setFeedback(check)
 
     if (check.ok) {
@@ -145,9 +163,10 @@ export default function GameLessonScreen({
       <button
         type="button"
         onClick={handleRun}
-        className="mb-3 w-full rounded-2xl bg-gradient-to-r from-sky-400 to-cyan-500 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-sky-500/20 active:scale-[0.98]"
+        disabled={running}
+        className="mb-3 w-full rounded-2xl bg-gradient-to-r from-sky-400 to-cyan-500 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-sky-500/20 active:scale-[0.98] disabled:opacity-60"
       >
-        ▶ Tester mon jeu
+        {running ? 'Ça tourne...' : isVisual ? '▶ Tester mon jeu' : '▶ Lancer le code'}
       </button>
 
       {testedCode !== null && (
@@ -156,6 +175,7 @@ export default function GameLessonScreen({
           runId={runId}
           onConsoleLine={handleConsoleLine}
           controls={lesson.controls ?? 'dpad'}
+          hidden={!isVisual}
         />
       )}
 
