@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import confetti from 'canvas-confetti'
-import type { Exercise } from '../types'
+import type { GameStep } from '../types'
 import { playError, playSuccess, playTap } from '../lib/sound'
 import type { CompleteLessonResult } from '../lib/storage'
 import { loadSavedCode, saveCode } from '../lib/codeStorage'
@@ -10,13 +10,13 @@ import GameCanvas, { type ConsoleLine } from './GameCanvas'
 import SuccessModal from './SuccessModal'
 
 interface GameLessonScreenProps {
-  lesson: Exercise
-  siblings: Exercise[]
+  lesson: GameStep
+  siblings: GameStep[]
   backLabel: string
   finaleHeading: string
   soundOn: boolean
   onBack: () => void
-  onComplete: (lesson: Exercise) => CompleteLessonResult
+  onComplete: (lesson: GameStep) => CompleteLessonResult
   onNextLesson: (lessonId: string) => void
 }
 
@@ -132,7 +132,12 @@ export default function GameLessonScreen({
       </button>
 
       {testedCode !== null && (
-        <GameCanvas code={testedCode} runId={runId} onConsoleLine={handleConsoleLine} />
+        <GameCanvas
+          code={testedCode}
+          runId={runId}
+          onConsoleLine={handleConsoleLine}
+          controls={lesson.controls ?? 'dpad'}
+        />
       )}
 
       {consoleLines.length > 0 && (

@@ -110,9 +110,11 @@ export interface DonjonLevel extends Exercise {
   chapter: string
 }
 
-/** One level of the standalone "Jeux" game-coding track: real JavaScript + Canvas, live-tested in a sandboxed iframe. */
-export interface GameLevel extends Exercise {
-  chapter: string
+/** One level of a "Jeux" game track: real JavaScript + Canvas, live-tested in a sandboxed iframe. */
+export interface GameStep extends Exercise {
+  trackId: string
+  /** 'none' hides the on-screen D-pad for click/tap-driven games (Morpion, Simon...) that don't use it. Defaults to 'dpad'. */
+  controls?: 'dpad' | 'none'
 }
 
 /** One standalone algorithmic challenge in the "Défis" tab. */
@@ -142,6 +144,17 @@ export interface Project {
   difficulty: Difficulty
   color: string
   steps: ProjectStep[]
+}
+
+/** One game in the "Jeux" tab — picked freely like a Project, not gated behind the others. */
+export interface GameTrack {
+  id: string
+  title: string
+  emoji: string
+  description: string
+  difficulty: Difficulty
+  color: string
+  steps: GameStep[]
 }
 
 export interface Badge {

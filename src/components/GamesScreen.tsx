@@ -1,74 +1,61 @@
-import { GAME_LEVELS } from '../data/games'
-import type { Progress } from '../types'
+import { GAME_TRACKS } from '../data/games'
+import type { Difficulty, Progress } from '../types'
 
 interface GamesScreenProps {
   progress: Progress
-  onSelectLevel: (levelId: string) => void
+  onSelectTrack: (trackId: string) => void
 }
 
-type LevelState = 'locked' | 'unlocked' | 'done'
-
-function stateFor(progress: Progress, index: number): LevelState {
-  const level = GAME_LEVELS[index]
-  if (progress.completedLessons[level.id]) return 'done'
-  if (index === 0) return 'unlocked'
-  const previous = GAME_LEVELS[index - 1]
-  return progress.completedLessons[previous.id] ? 'unlocked' : 'locked'
+const DIFFICULTY_STYLE: Record<Difficulty, string> = {
+  Débutant: 'bg-emerald-400/15 text-emerald-300',
+  Intermédiaire: 'bg-amber-400/15 text-amber-300',
+  Avancé: 'bg-rose-400/15 text-rose-300',
 }
 
-export default function GamesScreen({ progress, onSelectLevel }: GamesScreenProps) {
-  const doneCount = GAME_LEVELS.filter((l) => progress.completedLessons[l.id]).length
-
-  const showChapterAt = GAME_LEVELS.map(
-    (level, index) => index === 0 || level.chapter !== GAME_LEVELS[index - 1].chapter,
-  )
-
+export default function GamesScreen({ progress, onSelectTrack }: GamesScreenProps) {
   return (
     <div className="mx-auto max-w-md px-4 pb-10 pt-5">
       <div className="mb-6">
         <h1 className="text-xl font-extrabold text-white">Les Jeux 🎮</h1>
         <p className="mt-0.5 text-sm text-white/50">
-          {doneCount} / {GAME_LEVELS.length} niveaux terminés — JavaScript + Canvas, testé en direct.
+          Choisis un jeu et code-le à ton rythme — pas besoin d'avoir fini le précédent. JavaScript +
+          Canvas, testé en direct.
         </p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        {GAME_LEVELS.map((level, index) => {
-          const state = stateFor(progress, index)
-          const showChapter = showChapterAt[index]
+      <div className="flex flex-col gap-3">
+        {GAME_TRACKS.map((track) => {
+          const doneCount = track.steps.filter((s) => progress.completedLessons[s.id]).length
+          const total = track.steps.length
           return (
-            <div key={level.id}>
-              {showChapter && (
-                <p className="mb-2 mt-5 first:mt-0 text-xs font-bold uppercase tracking-wide text-sky-300/70">
-                  {level.chapter}
-                </p>
-              )}
-              <button
-                type="button"
-                disabled={state === 'locked'}
-                onClick={() => onSelectLevel(level.id)}
-                className="flex w-full items-center gap-3 rounded-xl bg-white/5 p-3 text-left disabled:opacity-40"
-              >
-                <div
-                  className={[
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg',
-                    state === 'done'
-                      ? 'bg-gradient-to-br from-emerald-400 to-teal-500'
-                      : state === 'unlocked'
-                        ? 'bg-gradient-to-br from-sky-400 to-cyan-500'
-                        : 'bg-white/10',
-                  ].join(' ')}
+            <button
+              key={track.id}
+              type="button"
+              onClick={() => onSelectTrack(track.id)}
+              className={`rounded-2xl bg-gradient-to-br ${track.color} p-4 text-left shadow-lg active:scale-[0.98]`}
+            >
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <span className="text-3xl">{track.emoji}</span>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${DIFFICULTY_STYLE[track.difficulty]}`}
                 >
-                  {state === 'done' ? '✅' : state === 'locked' ? '🔒' : level.emoji}
+                  {track.difficulty}
+                </span>
+              </div>
+              <h2 className="text-base font-bold text-white">{track.title}</h2>
+              <p className="mt-0.5 text-sm text-white/80">{track.description}</p>
+              <div className="mt-3 flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-black/20">
+                  <div
+                    className="h-full rounded-full bg-white/90 transition-all"
+                    style={{ width: `${total ? (doneCount / total) * 100 : 0}%` }}
+                  />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-white">
-                    Niveau {index + 1} · {level.title}
-                  </p>
-                  <p className="text-xs text-white/40">+{level.xp} XP</p>
-                </div>
-              </button>
-            </div>
+                <span className="shrink-0 text-xs font-semibold text-white/80">
+                  {doneCount}/{total}
+                </span>
+              </div>
+            </button>
           )
         })}
       </div>

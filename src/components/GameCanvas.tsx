@@ -11,6 +11,8 @@ interface GameCanvasProps {
   /** Bumped by the parent on every "Lancer" click to force a clean iframe remount (fresh run). */
   runId: number
   onConsoleLine: (line: ConsoleLine) => void
+  /** 'none' hides the on-screen D-pad for click/tap-driven games that don't use it. Defaults to 'dpad'. */
+  controls?: 'dpad' | 'none'
 }
 
 interface TouchButtonProps {
@@ -42,7 +44,7 @@ function TouchButton({ label, big, onDown, onUp }: TouchButtonProps) {
   )
 }
 
-export default function GameCanvas({ code, runId, onConsoleLine }: GameCanvasProps) {
+export default function GameCanvas({ code, runId, onConsoleLine, controls = 'dpad' }: GameCanvasProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
@@ -74,24 +76,39 @@ export default function GameCanvas({ code, runId, onConsoleLine }: GameCanvasPro
         />
       </div>
 
-      <div className="mt-3 flex items-center justify-between px-2">
-        <div className="grid grid-cols-3 grid-rows-2 gap-1.5">
-          <div />
-          <TouchButton label="⬆️" onDown={() => sendKey('ArrowUp', true)} onUp={() => sendKey('ArrowUp', false)} />
-          <div />
-          <TouchButton label="⬅️" onDown={() => sendKey('ArrowLeft', true)} onUp={() => sendKey('ArrowLeft', false)} />
-          <TouchButton label="⬇️" onDown={() => sendKey('ArrowDown', true)} onUp={() => sendKey('ArrowDown', false)} />
-          <TouchButton
-            label="➡️"
-            onDown={() => sendKey('ArrowRight', true)}
-            onUp={() => sendKey('ArrowRight', false)}
-          />
-        </div>
-        <TouchButton big label="⏺" onDown={() => sendKey(' ', true)} onUp={() => sendKey(' ', false)} />
-      </div>
-      <p className="mt-1.5 text-center text-[10px] text-white/30">
-        Flèches du clavier ou boutons tactiles — les deux fonctionnent.
-      </p>
+      {controls === 'dpad' && (
+        <>
+          <div className="mt-3 flex items-center justify-between px-2">
+            <div className="grid grid-cols-3 grid-rows-2 gap-1.5">
+              <div />
+              <TouchButton label="⬆️" onDown={() => sendKey('ArrowUp', true)} onUp={() => sendKey('ArrowUp', false)} />
+              <div />
+              <TouchButton
+                label="⬅️"
+                onDown={() => sendKey('ArrowLeft', true)}
+                onUp={() => sendKey('ArrowLeft', false)}
+              />
+              <TouchButton
+                label="⬇️"
+                onDown={() => sendKey('ArrowDown', true)}
+                onUp={() => sendKey('ArrowDown', false)}
+              />
+              <TouchButton
+                label="➡️"
+                onDown={() => sendKey('ArrowRight', true)}
+                onUp={() => sendKey('ArrowRight', false)}
+              />
+            </div>
+            <TouchButton big label="⏺" onDown={() => sendKey(' ', true)} onUp={() => sendKey(' ', false)} />
+          </div>
+          <p className="mt-1.5 text-center text-[10px] text-white/30">
+            Flèches du clavier ou boutons tactiles — les deux fonctionnent.
+          </p>
+        </>
+      )}
+      {controls === 'none' && (
+        <p className="mt-1.5 text-center text-[10px] text-white/30">Clique ou tape directement sur l'écran.</p>
+      )}
     </div>
   )
 }
