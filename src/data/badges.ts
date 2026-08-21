@@ -1,6 +1,8 @@
 import type { Badge, Progress } from '../types'
 import { LESSONS } from './curriculum'
 import { PROJECTS } from './projects'
+import { DONJON_LEVELS } from './donjon'
+import { CHALLENGES } from './challenges'
 
 export const BADGES: Badge[] = [
   {
@@ -111,6 +113,24 @@ export const BADGES: Badge[] = [
     emoji: '🏗️',
     description: 'Termine tous les projets.',
   },
+  {
+    id: 'bibliothecaire',
+    title: 'Bibliothécaire',
+    emoji: '📚',
+    description: 'Crée ta première bibliothèque de fonctions dans Le Donjon.',
+  },
+  {
+    id: 'maitre-du-donjon',
+    title: 'Maître·sse du donjon',
+    emoji: '👑',
+    description: 'Termine les 50 niveaux du Donjon.',
+  },
+  {
+    id: 'champion-des-defis',
+    title: 'Champion·ne des défis',
+    emoji: '🧩',
+    description: 'Résous les 20 défis.',
+  },
 ]
 
 export function evaluateBadges(progress: Progress): string[] {
@@ -146,6 +166,9 @@ export function evaluateBadges(progress: Progress): string[] {
     'grand-createur',
     PROJECTS.every((project) => project.steps.every((step) => !!progress.completedLessons[step.id])),
   )
+  grant('bibliothecaire', !!progress.completedLessons['donjon-26'])
+  grant('maitre-du-donjon', DONJON_LEVELS.every((level) => !!progress.completedLessons[level.id]))
+  grant('champion-des-defis', CHALLENGES.every((c) => !!progress.completedLessons[c.id]))
 
   return newly
 }

@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { python } from '@codemirror/lang-python'
 import confetti from 'canvas-confetti'
-import type { DrawCommand, Exercise, FarmFrame } from '../types'
+import type { DonjonFrame, DrawCommand, Exercise, FarmFrame } from '../types'
 import { getPyodide, runPython } from '../lib/pyodide'
 import { playError, playSuccess, playTap } from '../lib/sound'
 import type { CompleteLessonResult } from '../lib/storage'
 import { loadSavedCode, saveCode } from '../lib/codeStorage'
+import { loadLibrary, saveLibrary } from '../lib/library'
 import SuccessModal from './SuccessModal'
 import TurtleCanvas from './TurtleCanvas'
 import FarmGrid from './FarmGrid'
+import DonjonGrid from './DonjonGrid'
 
 interface LessonScreenProps {
   lesson: Exercise
@@ -22,6 +24,9 @@ interface LessonScreenProps {
   onComplete: (lesson: Exercise) => CompleteLessonResult
   onNextLesson: (lessonId: string) => void
 }
+
+const DEFAULT_LIBRARY_CODE =
+  '# Écris ici des fonctions que tu veux réutiliser dans tous les niveaux de ce jeu.\n# Elles seront automatiquement disponibles partout, sans avoir à les recopier.\n'
 
 function fireConfetti() {
   confetti({
@@ -43,6 +48,10 @@ export default function LessonScreen({
   onNextLesson,
 }: LessonScreenProps) {
   const [code, setCode] = useState(() => loadSavedCode(lesson.id) ?? lesson.starterCode)
+  const [libraryCode, setLibraryCode] = useState(() =>
+    lesson.usesLibrary ? (loadLibrary(lesson.usesLibrary) ?? DEFAULT_LIBRARY_CODE) : '',
+  )
+  const [librarySaved, setLibrarySaved] = useState(true)
   const [running, setRunning] = useState(false)
   const [pyodideReady, setPyodideReady] = useState(false)
   const [output, setOutput] = useState<{ stdout: string; error: string | null } | null>(null)
@@ -55,6 +64,19 @@ export default function LessonScreen({
             tractorX: lesson.farmConfig.startX,
             tractorY: lesson.farmConfig.startY,
             tractorFacing: lesson.farmConfig.startFacing,
+          },
+        ]
+      : [],
+  )
+  const [donjonFrames, setDonjonFrames] = useState<DonjonFrame[]>(() =>
+    lesson.donjonConfig
+      ? [
+          {
+            grid: lesson.donjonConfig.cells,
+            robotX: lesson.donjonConfig.startX,
+            robotY: lesson.donjonConfig.startY,
+            robotFacing: lesson.donjonConfig.startFacing,
+            cles: 0,
           },
         ]
       : [],
@@ -81,16 +103,29 @@ export default function LessonScreen({
     saveCode(lesson.id, value)
   }
 
+  function handleLibraryChange(value: string) {
+    setLibraryCode(value)
+    setLibrarySaved(false)
+  }
+
+  function handleSaveLibrary() {
+    if (!lesson.usesLibrary) return
+    saveLibrary(lesson.usesLibrary, libraryCode)
+    setLibrarySaved(true)
+  }
+
   async function handleRun() {
     setRunning(true)
     setFeedback(null)
     setRunCount((c) => c + 1)
     playTap(soundOn)
     try {
-      const result = await runPython(code, lesson.farmConfig)
+      const fullCode = lesson.usesLibrary ? `${libraryCode}\n\n${code}` : code
+      const result = await runPython(fullCode, lesson.farmConfig, lesson.donjonConfig)
       setOutput({ stdout: result.stdout, error: result.error })
       setDrawCommands(result.commands)
       setFarmFrames(result.farmFrames)
+      setDonjonFrames(result.donjonFrames)
       setPyodideReady(true)
 
       if (result.error) {
@@ -99,7 +134,7 @@ export default function LessonScreen({
         return
       }
 
-      const check = lesson.check(result.stdout, result.get, result.commands, result.farmFrames)
+      const check = lesson.check(result.stdout, result.get, result.commands, result.farmFrames, result.donjonFrames)
       setFeedback(check)
 
       if (check.ok) {
@@ -109,7 +144,7 @@ export default function LessonScreen({
         // Give the learner a beat to actually see what they just made (the
         // drawing, the tractor's replay, the printed output) before the
         // congrats modal covers it — longer when there's an animation to watch.
-        const watchTime = Math.max(900, result.farmFrames.length * 320 + 400)
+        const watchTime = Math.max(900, (result.farmFrames.length + result.donjonFrames.length) * 320 + 400)
         window.setTimeout(() => setSuccessData(completion), watchTime)
       } else {
         playError(soundOn)
@@ -157,6 +192,37 @@ export default function LessonScreen({
         {lesson.task}
       </p>
 
+      {lesson.usesLibrary && (
+        <div className="mb-3">
+          <div className="mb-1.5 flex items-center justify-between">
+            <p className="text-xs font-bold uppercase tracking-wide text-sky-300/80">
+              📚 Ma bibliothèque
+            </p>
+            <button
+              type="button"
+              onClick={handleSaveLibrary}
+              disabled={librarySaved}
+              className="rounded-lg bg-sky-400/15 px-2.5 py-1 text-[11px] font-bold text-sky-300 active:scale-95 disabled:opacity-40"
+            >
+              {librarySaved ? 'Enregistré ✓' : 'Enregistrer'}
+            </button>
+          </div>
+          <p className="mb-1.5 text-[11px] leading-relaxed text-white/40">
+            Les fonctions écrites ici sont automatiquement disponibles dans tous les niveaux de ce jeu.
+          </p>
+          <div className="overflow-hidden rounded-xl border border-sky-400/20">
+            <CodeMirror
+              value={libraryCode}
+              height="120px"
+              theme="dark"
+              extensions={[python()]}
+              onChange={handleLibraryChange}
+              basicSetup={{ autocompletion: false }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="mb-3 overflow-hidden rounded-xl border border-white/10">
         <CodeMirror
           value={code}
@@ -180,6 +246,9 @@ export default function LessonScreen({
       {(lesson.visual || drawCommands.length > 0) && <TurtleCanvas commands={drawCommands} />}
       {lesson.farmConfig && (
         <FarmGrid key={runCount} frames={farmFrames} characterEmoji={lesson.characterEmoji} />
+      )}
+      {lesson.donjonConfig && (
+        <DonjonGrid key={runCount} frames={donjonFrames} characterEmoji={lesson.characterEmoji} />
       )}
 
       {output && (

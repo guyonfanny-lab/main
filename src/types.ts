@@ -33,6 +33,37 @@ export interface FarmConfig {
   startFacing: number
 }
 
+/** monstre1/2/3 = a monster requiring that many attaquer() hits to clear. */
+export type DonjonCell =
+  | 'vide'
+  | 'mur'
+  | 'monstre1'
+  | 'monstre2'
+  | 'monstre3'
+  | 'cle'
+  | 'porte'
+  | 'coffre'
+  | 'sortie'
+
+/** One frame of the dungeon grid, snapshotted after every robot action for a step-by-step replay. */
+export interface DonjonFrame {
+  grid: DonjonCell[][]
+  robotX: number
+  robotY: number
+  robotFacing: number
+  cles: number
+}
+
+/** Initial layout for a dungeon-grid exercise (see lib/pyodide.ts). */
+export interface DonjonConfig {
+  width: number
+  height: number
+  cells: DonjonCell[][]
+  startX: number
+  startY: number
+  startFacing: number
+}
+
 /** Shared shape for anything the learner codes against: a course lesson or a project step. */
 export interface Exercise {
   id: string
@@ -49,19 +80,34 @@ export interface Exercise {
   visual?: boolean
   /** Initial tractor-grid layout, if this exercise controls the farm tractor instead of (or alongside) the turtle. */
   farmConfig?: FarmConfig
-  /** Emoji shown for the grid character, when farmConfig is set. Defaults to the tractor. */
+  /** Initial dungeon-grid layout, if this exercise controls the dungeon robot. */
+  donjonConfig?: DonjonConfig
+  /** Emoji shown for the grid character, when farmConfig or donjonConfig is set. Defaults to the tractor. */
   characterEmoji?: string
-  /** Runs after the user's code executes; inspects stdout, globals, turtle drawing, and the farm grid's final frame. */
+  /** Shows the persistent function-library editor above the code, injected before this exercise's code on every run. */
+  usesLibrary?: string
+  /** Runs after the user's code executes; inspects stdout, globals, turtle drawing, and the farm/dungeon grid's final frame. */
   check: (
     stdout: string,
     get: (name: string) => unknown,
     commands: DrawCommand[],
     farmFrames: FarmFrame[],
+    donjonFrames: DonjonFrame[],
   ) => CheckResult
 }
 
 export interface Lesson extends Exercise {
   moduleId: string
+}
+
+/** One level of the standalone "Donjon" game (flat list, like Lesson but with no module and an optional chapter label). */
+export interface DonjonLevel extends Exercise {
+  chapter: string
+}
+
+/** One standalone algorithmic challenge in the "Défis" tab. */
+export interface Challenge extends Exercise {
+  difficulty: Difficulty
 }
 
 export interface Module {

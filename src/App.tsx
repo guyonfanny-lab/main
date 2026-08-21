@@ -6,8 +6,12 @@ import LessonScreen from './components/LessonScreen'
 import ProfileScreen from './components/ProfileScreen'
 import ProjectsScreen from './components/ProjectsScreen'
 import ProjectStepsScreen from './components/ProjectStepsScreen'
+import DonjonScreen from './components/DonjonScreen'
+import ChallengesScreen from './components/ChallengesScreen'
 import { LESSONS } from './data/curriculum'
 import { PROJECTS } from './data/projects'
+import { DONJON_LEVELS } from './data/donjon'
+import { CHALLENGES } from './data/challenges'
 import { completeLesson, loadProgress, resetProgress, toggleSound } from './lib/storage'
 import type { Exercise } from './types'
 
@@ -17,6 +21,8 @@ function App() {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null)
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
   const [activeStepId, setActiveStepId] = useState<string | null>(null)
+  const [activeDonjonId, setActiveDonjonId] = useState<string | null>(null)
+  const [activeChallengeId, setActiveChallengeId] = useState<string | null>(null)
 
   const activeLesson: Exercise | null = activeLessonId
     ? (LESSONS.find((l) => l.id === activeLessonId) ?? null)
@@ -26,7 +32,15 @@ function App() {
   const activeStep: Exercise | null =
     activeProject && activeStepId ? (activeProject.steps.find((s) => s.id === activeStepId) ?? null) : null
 
-  const inLesson = !!activeLesson || !!activeStep
+  const activeDonjonLevel: Exercise | null = activeDonjonId
+    ? (DONJON_LEVELS.find((l) => l.id === activeDonjonId) ?? null)
+    : null
+
+  const activeChallenge: Exercise | null = activeChallengeId
+    ? (CHALLENGES.find((c) => c.id === activeChallengeId) ?? null)
+    : null
+
+  const inLesson = !!activeLesson || !!activeStep || !!activeDonjonLevel || !!activeChallenge
 
   function handleComplete(lesson: Exercise) {
     const result = completeLesson(progress, lesson.id, lesson.xp)
@@ -40,6 +54,8 @@ function App() {
       setActiveLessonId(null)
       setActiveProjectId(null)
       setActiveStepId(null)
+      setActiveDonjonId(null)
+      setActiveChallengeId(null)
       setTab('path')
     }
   }
@@ -73,6 +89,30 @@ function App() {
             onComplete={handleComplete}
             onNextLesson={(id) => setActiveStepId(id)}
           />
+        ) : activeDonjonLevel ? (
+          <LessonScreen
+            key={activeDonjonLevel.id}
+            lesson={activeDonjonLevel}
+            siblings={DONJON_LEVELS}
+            backLabel="Retour au donjon"
+            finaleHeading="Donjon terminé !"
+            soundOn={progress.soundOn}
+            onBack={() => setActiveDonjonId(null)}
+            onComplete={handleComplete}
+            onNextLesson={(id) => setActiveDonjonId(id)}
+          />
+        ) : activeChallenge ? (
+          <LessonScreen
+            key={activeChallenge.id}
+            lesson={activeChallenge}
+            siblings={CHALLENGES}
+            backLabel="Retour aux défis"
+            finaleHeading="Tous les défis résolus !"
+            soundOn={progress.soundOn}
+            onBack={() => setActiveChallengeId(null)}
+            onComplete={handleComplete}
+            onNextLesson={(id) => setActiveChallengeId(id)}
+          />
         ) : tab === 'path' ? (
           <PathScreen progress={progress} onSelectLesson={setActiveLessonId} />
         ) : tab === 'projects' ? (
@@ -86,6 +126,10 @@ function App() {
           ) : (
             <ProjectsScreen progress={progress} onSelectProject={setActiveProjectId} />
           )
+        ) : tab === 'donjon' ? (
+          <DonjonScreen progress={progress} onSelectLevel={setActiveDonjonId} />
+        ) : tab === 'challenges' ? (
+          <ChallengesScreen progress={progress} onSelectChallenge={setActiveChallengeId} />
         ) : (
           <ProfileScreen
             progress={progress}

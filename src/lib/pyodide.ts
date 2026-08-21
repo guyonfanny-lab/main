@@ -2,7 +2,7 @@
 // so PyQuest has no external CDN dependency and can run fully offline once
 // the assets are cached by the service worker. Runs user code with stdout
 // captured, so lessons can check what the learner's program prints.
-import type { DrawCommand, FarmCell, FarmConfig, FarmFrame } from '../types'
+import type { DonjonCell, DonjonConfig, DonjonFrame, DrawCommand, FarmCell, FarmConfig, FarmFrame } from '../types'
 
 const PYODIDE_BASE = `${import.meta.env.BASE_URL}pyodide/`
 
@@ -212,14 +212,180 @@ function farmCaseLibre(): boolean {
   return farm.grid[ny][nx] !== 'rocher'
 }
 
+// deplacer/pivoter_droite/pivoter_gauche/case_libre are shared verbs between
+// the farm and dungeon worlds. Only one world is ever active in a given run
+// (whichever config was passed to runPython), so these dispatch to whichever
+// grid engine reset() last marked active instead of each world claiming the
+// Python global for itself.
+let activeWorld: 'farm' | 'donjon' = 'farm'
+
 function registerFarmApi(pyodide: PyodideInterface) {
-  pyodide.globals.set('deplacer', () => farmDeplacer())
-  pyodide.globals.set('pivoter_droite', () => farmPivoter(90))
-  pyodide.globals.set('pivoter_gauche', () => farmPivoter(-90))
   pyodide.globals.set('recolter', () => farmRecolter())
   pyodide.globals.set('planter', () => farmPlanter())
   pyodide.globals.set('case_recoltable', () => farmCaseRecoltable())
-  pyodide.globals.set('case_libre', () => farmCaseLibre())
+}
+
+// ---------------------------------------------------------------------------
+// Dungeon bridge: a grid-world robot that moves, fights monsters (each cell
+// tracks how many attaquer() hits it still needs), collects keys, and opens
+// locked doors — reuses deplacer/pivoter_droite/pivoter_gauche/case_libre
+// from the farm bridge, adding combat/inventory primitives on top.
+// ---------------------------------------------------------------------------
+const DEFAULT_DONJON_CONFIG: DonjonConfig = {
+  width: 1,
+  height: 1,
+  cells: [['vide']],
+  startX: 0,
+  startY: 0,
+  startFacing: 90,
+}
+
+const MONSTER_HITS: Partial<Record<DonjonCell, number>> = {
+  monstre1: 1,
+  monstre2: 2,
+  monstre3: 3,
+}
+
+const donjon = {
+  width: 1,
+  height: 1,
+  grid: [['vide']] as DonjonCell[][],
+  x: 0,
+  y: 0,
+  facing: 90,
+  cles: 0,
+  frames: [] as DonjonFrame[],
+}
+
+function snapshotDonjon() {
+  donjon.frames.push({
+    grid: donjon.grid.map((row) => [...row]),
+    robotX: donjon.x,
+    robotY: donjon.y,
+    robotFacing: donjon.facing,
+    cles: donjon.cles,
+  })
+}
+
+function resetDonjon(config?: DonjonConfig) {
+  const cfg = config ?? DEFAULT_DONJON_CONFIG
+  donjon.width = cfg.width
+  donjon.height = cfg.height
+  donjon.grid = cfg.cells.map((row) => [...row])
+  donjon.x = cfg.startX
+  donjon.y = cfg.startY
+  donjon.facing = cfg.startFacing
+  donjon.cles = 0
+  donjon.frames = []
+  snapshotDonjon()
+}
+
+function donjonAheadCoords(): { nx: number; ny: number } {
+  const rad = (donjon.facing * Math.PI) / 180
+  return {
+    nx: donjon.x + Math.round(Math.sin(rad)),
+    ny: donjon.y + Math.round(-Math.cos(rad)),
+  }
+}
+
+function donjonCellPassable(cell: DonjonCell): boolean {
+  return cell === 'vide' || cell === 'cle' || cell === 'coffre' || cell === 'sortie'
+}
+
+function donjonDeplacer() {
+  const { nx, ny } = donjonAheadCoords()
+  const inBounds = nx >= 0 && nx < donjon.width && ny >= 0 && ny < donjon.height
+  if (inBounds && donjonCellPassable(donjon.grid[ny][nx])) {
+    donjon.x = nx
+    donjon.y = ny
+  }
+  snapshotDonjon()
+}
+
+function donjonPivoter(delta: number) {
+  donjon.facing = (donjon.facing + delta + 360) % 360
+  snapshotDonjon()
+}
+
+function donjonCaseLibre(): boolean {
+  const { nx, ny } = donjonAheadCoords()
+  if (nx < 0 || nx >= donjon.width || ny < 0 || ny >= donjon.height) return false
+  return donjonCellPassable(donjon.grid[ny][nx])
+}
+
+function donjonCaseDevant(): string {
+  const { nx, ny } = donjonAheadCoords()
+  if (nx < 0 || nx >= donjon.width || ny < 0 || ny >= donjon.height) return 'limite'
+  const cell = donjon.grid[ny][nx]
+  return cell.startsWith('monstre') ? 'monstre' : cell
+}
+
+function donjonPvEnnemi(): number {
+  const { nx, ny } = donjonAheadCoords()
+  if (nx < 0 || nx >= donjon.width || ny < 0 || ny >= donjon.height) return 0
+  return MONSTER_HITS[donjon.grid[ny][nx]] ?? 0
+}
+
+function donjonAttaquer() {
+  const { nx, ny } = donjonAheadCoords()
+  if (nx >= 0 && nx < donjon.width && ny >= 0 && ny < donjon.height) {
+    const cell = donjon.grid[ny][nx]
+    const hits = MONSTER_HITS[cell]
+    if (hits !== undefined) {
+      if (hits <= 1) {
+        donjon.grid[ny][nx] = 'vide'
+      } else {
+        donjon.grid[ny][nx] = (`monstre${hits - 1}` as DonjonCell)
+      }
+    }
+  }
+  snapshotDonjon()
+}
+
+function donjonRamasser() {
+  const cell = donjon.grid[donjon.y][donjon.x]
+  if (cell === 'cle') {
+    donjon.cles += 1
+    donjon.grid[donjon.y][donjon.x] = 'vide'
+  } else if (cell === 'coffre') {
+    donjon.grid[donjon.y][donjon.x] = 'vide'
+  }
+  snapshotDonjon()
+}
+
+function donjonAUneCle(): boolean {
+  return donjon.cles > 0
+}
+
+function donjonOuvrir() {
+  const { nx, ny } = donjonAheadCoords()
+  if (nx >= 0 && nx < donjon.width && ny >= 0 && ny < donjon.height) {
+    if (donjon.grid[ny][nx] === 'porte' && donjon.cles > 0) {
+      donjon.grid[ny][nx] = 'vide'
+      donjon.cles -= 1
+    }
+  }
+  snapshotDonjon()
+}
+
+function registerSharedGridApi(pyodide: PyodideInterface) {
+  pyodide.globals.set('deplacer', () => (activeWorld === 'donjon' ? donjonDeplacer() : farmDeplacer()))
+  pyodide.globals.set('pivoter_droite', () =>
+    activeWorld === 'donjon' ? donjonPivoter(90) : farmPivoter(90),
+  )
+  pyodide.globals.set('pivoter_gauche', () =>
+    activeWorld === 'donjon' ? donjonPivoter(-90) : farmPivoter(-90),
+  )
+  pyodide.globals.set('case_libre', () => (activeWorld === 'donjon' ? donjonCaseLibre() : farmCaseLibre()))
+}
+
+function registerDonjonApi(pyodide: PyodideInterface) {
+  pyodide.globals.set('case_devant', () => donjonCaseDevant())
+  pyodide.globals.set('pv_ennemi', () => donjonPvEnnemi())
+  pyodide.globals.set('attaquer', () => donjonAttaquer())
+  pyodide.globals.set('ramasser', () => donjonRamasser())
+  pyodide.globals.set('a_une_cle', () => donjonAUneCle())
+  pyodide.globals.set('ouvrir', () => donjonOuvrir())
 }
 
 export function getPyodide(): Promise<PyodideInterface> {
@@ -232,6 +398,8 @@ export function getPyodide(): Promise<PyodideInterface> {
       const pyodide = await window.loadPyodide({ indexURL: PYODIDE_BASE })
       registerTurtleApi(pyodide)
       registerFarmApi(pyodide)
+      registerDonjonApi(pyodide)
+      registerSharedGridApi(pyodide)
       return pyodide
     })()
   }
@@ -244,6 +412,7 @@ export interface RunResult {
   get: (name: string) => unknown
   commands: DrawCommand[]
   farmFrames: FarmFrame[]
+  donjonFrames: DonjonFrame[]
 }
 
 function pyToJs(value: unknown): unknown {
@@ -264,13 +433,19 @@ function friendlyError(raw: string): string {
   return last.replace(/^\w*Error:?\s*/, (m) => m)
 }
 
-export async function runPython(code: string, farmConfig?: FarmConfig): Promise<RunResult> {
+export async function runPython(
+  code: string,
+  farmConfig?: FarmConfig,
+  donjonConfig?: DonjonConfig,
+): Promise<RunResult> {
   const pyodide = await getPyodide()
   let buffer: string[] = []
   pyodide.setStdout({ batched: (msg: string) => buffer.push(msg) })
   pyodide.setStderr({ batched: () => {} })
   resetTurtle()
   resetFarm(farmConfig)
+  resetDonjon(donjonConfig)
+  activeWorld = donjonConfig ? 'donjon' : 'farm'
 
   let error: string | null = null
   try {
@@ -284,6 +459,7 @@ export async function runPython(code: string, farmConfig?: FarmConfig): Promise<
     error,
     commands: [...turtle.commands],
     farmFrames: [...farm.frames],
+    donjonFrames: [...donjon.frames],
     get: (name: string) => {
       try {
         return pyToJs(pyodide.globals.get(name))
