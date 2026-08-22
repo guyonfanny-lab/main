@@ -179,7 +179,7 @@ export const DONJON_LEVELS: DonjonLevel[] = [
       xp: 20,
       chapter: "Chapitre 2 · Combat",
       intro: "Certains monstres encaissent plusieurs coups. tant que pv_ennemi() > 0 : attaquer() marche quel que soit le nombre de points de vie.",
-      task: "Ce monstre a 2 points de vie. Utilise une boucle while pour l'attaquer tant qu'il lui reste des points de vie, puis avance jusqu'à la sortie.",
+      task: "Ce monstre a 2 points de vie. Vainc-le, puis avance jusqu'à la sortie.",
       starterCode: "# Ton code ici\n",
       donjonConfig: {
         width: 3,
@@ -204,7 +204,7 @@ export const DONJON_LEVELS: DonjonLevel[] = [
       xp: 20,
       chapter: "Chapitre 2 · Combat",
       intro: "Même technique : la boucle while pv_ennemi() > 0 s'adapte automatiquement à n'importe quel monstre.",
-      task: "Ce monstre a 3 points de vie. Vide ses points de vie avec une boucle, puis avance jusqu'à la sortie.",
+      task: "Ce monstre a 3 points de vie. Vainc-le, puis avance jusqu'à la sortie.",
       starterCode: "# Ton code ici\n",
       donjonConfig: {
         width: 3,
@@ -229,7 +229,7 @@ export const DONJON_LEVELS: DonjonLevel[] = [
       xp: 30,
       chapter: "Chapitre 2 · Combat",
       intro: "Rien n'empêche de répéter la même technique plusieurs fois dans le même donjon.",
-      task: "Deux monstres gardent le couloir. Bats-les tous les deux (avec une boucle while à chaque fois) pour atteindre la sortie.",
+      task: "Deux monstres gardent le couloir. Bats-les tous les deux pour atteindre la sortie.",
       starterCode: "# Ton code ici\n",
       donjonConfig: {
         width: 5,
@@ -529,7 +529,7 @@ export const DONJON_LEVELS: DonjonLevel[] = [
       xp: 30,
       chapter: "Chapitre 5 · Fonctions réutilisables",
       intro: "Plutôt que de gérer chaque cas à la main, écris une fonction qui décide toute seule quoi faire face à n'importe quoi : un monstre, une porte, ou du vide.",
-      task: "Complète avancer_intelligent() : si case_devant() vaut 'monstre', vide ses points de vie puis avance ; si elle vaut 'porte', ouvre puis avance ; sinon, avance simplement. Appelle-la 3 fois pour traverser le couloir.",
+      task: "Complète avancer_intelligent() pour qu'elle réagisse correctement à ce qu'il y a devant elle (monstre, porte, ou case vide). Appelle-la 3 fois pour traverser le couloir.",
       starterCode: "def avancer_intelligent():\n    # complète ici\n    pass\n\n# Ton code ici\n",
       donjonConfig: {
         width: 4,
@@ -554,7 +554,7 @@ export const DONJON_LEVELS: DonjonLevel[] = [
       xp: 35,
       chapter: "Chapitre 5 · Fonctions réutilisables",
       intro: "Ajoute le ramassage des objets à la décision, et boucle sur toute la longueur du couloir : une seule fonction pour tout traverser.",
-      task: "Complète traverser(nb_cases) : pour chaque case, ramasse() ce qui s'y trouve, puis avancer_intelligent() vers la suivante (sauf sur la dernière case). Teste avec traverser(5).",
+      task: "Complète traverser(nb_cases) pour qu'elle ramasse tout ce qui traîne en avançant sur nb_cases cases. Teste avec traverser(5).",
       starterCode: "def avancer_intelligent():\n    devant = case_devant()\n    if devant == 'monstre':\n        while pv_ennemi() > 0:\n            attaquer()\n        deplacer()\n    elif devant == 'porte':\n        ouvrir()\n        deplacer()\n    else:\n        deplacer()\n\ndef traverser(nb_cases):\n    # complète ici\n    pass\n\ntraverser(5)\n",
       donjonConfig: {
         width: 5,
@@ -813,7 +813,7 @@ export const DONJON_LEVELS: DonjonLevel[] = [
       xp: 45,
       chapter: "Chapitre 7 · Salles multiples",
       intro: "Généralise en explorer_donjon(largeur, hauteur), qui répète le motif salle par salle — sur le modèle de travailler_champ à la ferme. Ajoute-la à ta bibliothèque avec ligne_suivante().",
-      task: "Complète ligne_suivante(largeur) (demi-tour, retour, demi-tour, descente) et explorer_donjon(largeur, hauteur) (pour chaque salle : traverser(largeur), puis ligne_suivante(largeur) sauf sur la dernière). Enregistre-les dans ta bibliothèque, puis appelle explorer_donjon(5, 2).",
+      task: "Termine explorer_donjon(largeur, hauteur) pour qu'elle parcoure chaque salle du donjon, ligne par ligne. Enregistre tes fonctions dans ta bibliothèque, puis appelle explorer_donjon(5, 2).",
       starterCode: "def ligne_suivante(largeur):\n    pivoter_droite()\n    pivoter_droite()\n    for _ in range(largeur - 1):\n        deplacer()\n    pivoter_droite()\n    pivoter_droite()\n    pivoter_droite()\n    deplacer()\n    pivoter_gauche()\n\ndef explorer_donjon(largeur, hauteur):\n    # complète ici\n    pass\n\nexplorer_donjon(5, 2)\n",
       donjonConfig: {
         width: 5,

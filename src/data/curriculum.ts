@@ -112,7 +112,7 @@ export const LESSONS: Lesson[] = [
     intro:
       'Une variable, c\'est une boîte étiquetée qui garde une valeur en mémoire. `prenom = "Ada"` range "Ada" dans la boîte `prenom`.',
     task:
-      'Crée une variable `prenom` contenant ton prénom (ou celui d\'un·e héros·ïne de ton choix), puis affiche : Je m\'appelle suivi du prénom, avec un f-string comme `print(f"Je m\'appelle {prenom}")`.',
+      'Crée une variable `prenom` contenant ton prénom (ou celui d\'un·e héros·ïne de ton choix), puis affiche "Je m\'appelle" suivi du prénom.',
     starterCode: 'prenom = "Ada"\n\n# Ton code ici\n',
     hints: [
       'Un f-string se construit avec `f"...{variable}..."`.',
@@ -136,8 +136,7 @@ export const LESSONS: Lesson[] = [
     xp: 15,
     intro:
       'Les variables peuvent être des nombres. On peut faire des calculs avec, comme `age + 10`.',
-    task:
-      'La variable `age` vaut 15. Calcule l\'âge dans 10 ans dans une nouvelle variable `age_futur`, puis affiche uniquement ce nombre avec `print(age_futur)`.',
+    task: "La variable `age` vaut 15. Calcule et affiche l'âge dans 10 ans.",
     starterCode: 'age = 15\n\n# Ton code ici\n',
     hints: [
       'age_futur = age + 10',
@@ -173,8 +172,7 @@ export const LESSONS: Lesson[] = [
     xp: 15,
     intro:
       "L'opérateur `%` (modulo) donne le reste d'une division. `10 % 2` vaut 0 car 10 est pair.",
-    task:
-      "La variable `nombre` vaut 17. Calcule `nombre % 2` dans une variable `reste` et affiche-la avec print(reste).",
+    task: 'La variable `nombre` vaut 17. Calcule et affiche le reste de sa division par 2.',
     starterCode: 'nombre = 17\n\n# Ton code ici\n',
     hints: ['reste = nombre % 2', 'print(reste) doit afficher 1 (17 est impair).'],
     check: (stdout) =>
@@ -246,7 +244,7 @@ export const LESSONS: Lesson[] = [
     intro:
       'On peut découper une chaîne avec `[debut:fin]` (slicing) et connaître sa longueur avec `len()`.',
     task:
-      'La variable `mot = "PYTHONISTE"` existe. Affiche les 6 premières lettres, puis sur une autre ligne la longueur totale du mot avec len().',
+      'La variable `mot = "PYTHONISTE"` existe. Affiche les 6 premières lettres, puis sur une autre ligne la longueur totale du mot.',
     starterCode: 'mot = "PYTHONISTE"\n\n# Ton code ici\n',
     hints: ['print(mot[0:6]) affiche "PYTHON"', 'print(len(mot)) affiche 10'],
     check: (stdout) => {
@@ -268,7 +266,7 @@ export const LESSONS: Lesson[] = [
     intro:
       '.split() sépare une chaîne en liste de mots (par défaut sur les espaces). " - ".join(liste) fait l\'inverse : elle recolle une liste en une chaîne.',
     task:
-      'La variable `phrase = "le chat noir dort"` existe. Sépare-la en mots avec .split() dans une variable `mots`, affiche le nombre de mots avec len(), puis affiche les mots recollés avec " - " entre eux grâce à " - ".join(mots).',
+      'La variable `phrase = "le chat noir dort"` existe. Sépare-la en mots, affiche le nombre de mots obtenus, puis affiche-les recollés avec " - " entre chaque mot.',
     starterCode: 'phrase = "le chat noir dort"\n\n# Ton code ici\n',
     hints: [
       'mots = phrase.split() sépare la phrase en une liste de mots.',
@@ -349,7 +347,7 @@ export const LESSONS: Lesson[] = [
     emoji: '🚀',
     xp: 15,
     intro: '`for i in range(n):` répète un bloc n fois, avec i qui prend les valeurs 0, 1, 2...',
-    task: 'Affiche les nombres de 1 à 5 (un par ligne) en utilisant une boucle for et range().',
+    task: 'Affiche les nombres de 1 à 5, un par ligne.',
     starterCode: '# Ton code ici\n',
     hints: [
       'range(1, 6) donne 1, 2, 3, 4, 5.',
@@ -394,8 +392,7 @@ export const LESSONS: Lesson[] = [
     emoji: '🪙',
     xp: 20,
     intro: 'On peut accumuler une valeur au fil d\'une boucle grâce à une variable "total".',
-    task:
-      'La liste `pieces = [2, 5, 1, 8, 3]` existe. Calcule la somme de toutes les pièces avec une boucle for et une variable `total`, puis affiche `total`.',
+    task: 'La liste `pieces = [2, 5, 1, 8, 3]` existe. Calcule la somme de toutes les pièces, puis affiche le résultat.',
     starterCode: 'pieces = [2, 5, 1, 8, 3]\ntotal = 0\n\n# Ton code ici\n',
     hints: [
       'for piece in pieces:\n    total = total + piece',
@@ -415,7 +412,7 @@ export const LESSONS: Lesson[] = [
     xp: 20,
     intro: '`break` arrête complètement une boucle, immédiatement, dès qu\'on le rencontre.',
     task:
-      'La liste `nombres = [3, 7, 2, 9, 4, 12, 1]` existe. Parcours-la avec un for, affiche chaque nombre, mais arrête la boucle avec break juste après avoir affiché un nombre strictement supérieur à 10 (donc le programme ne doit jamais afficher le 1 final).',
+      'La liste `nombres = [3, 7, 2, 9, 4, 12, 1]` existe. Affiche chaque nombre un par un, mais arrête-toi juste après avoir affiché un nombre strictement supérieur à 10 (le 1 final ne doit jamais s\'afficher).',
     starterCode: 'nombres = [3, 7, 2, 9, 4, 12, 1]\n\n# Ton code ici\n',
     hints: [
       'for n in nombres:\n    print(n)\n    if n > 10:\n        break',
@@ -439,8 +436,7 @@ export const LESSONS: Lesson[] = [
     emoji: '🎒',
     xp: 15,
     intro: "Une liste range plusieurs valeurs, dans l'ordre : `sac = [\"corde\", \"pain\"]`. On accède à un élément avec `sac[0]`.",
-    task:
-      'La liste `sac = ["epee", "bouclier", "potion"]` existe. Ajoute "carte" à la fin avec `.append()`, puis affiche le sac entier avec print(sac).',
+    task: 'La liste `sac = ["epee", "bouclier", "potion"]` existe. Ajoute "carte" à la fin, puis affiche le sac entier.',
     starterCode: 'sac = ["epee", "bouclier", "potion"]\n\n# Ton code ici\n',
     hints: ['sac.append("carte")', 'print(sac)'],
     check: (stdout) =>
@@ -476,8 +472,7 @@ export const LESSONS: Lesson[] = [
     emoji: '🧙‍♀️',
     xp: 20,
     intro: 'On peut filtrer une liste en ne gardant que les éléments qui respectent une condition.',
-    task:
-      'La liste `scores = [12, 45, 8, 30, 3, 50]` existe. Affiche uniquement les scores strictement supérieurs à 10, un par ligne, en parcourant la liste avec un for + if.',
+    task: 'La liste `scores = [12, 45, 8, 30, 3, 50]` existe. Affiche uniquement les scores strictement supérieurs à 10, un par ligne.',
     starterCode: 'scores = [12, 45, 8, 30, 3, 50]\n\n# Ton code ici\n',
     hints: [
       'for score in scores:\n    if score > 10:\n        print(score)',
@@ -502,8 +497,7 @@ export const LESSONS: Lesson[] = [
     xp: 20,
     intro:
       'sorted(liste) renvoie une NOUVELLE liste triée (la liste d\'origine ne change pas). Ajoute reverse=True pour trier du plus grand au plus petit.',
-    task:
-      'La liste `scores = [42, 17, 99, 8, 63]` existe. Affiche-la triée du plus grand au plus petit avec sorted(scores, reverse=True).',
+    task: 'La liste `scores = [42, 17, 99, 8, 63]` existe. Affiche-la triée du plus grand au plus petit.',
     starterCode: 'scores = [42, 17, 99, 8, 63]\n\n# Ton code ici\n',
     hints: ['print(sorted(scores, reverse=True))'],
     check: (stdout) =>
@@ -558,7 +552,7 @@ export const LESSONS: Lesson[] = [
     xp: 20,
     intro: "On ajoute ou modifie une entrée avec `dico[\"cle\"] = valeur`, que la clé existe déjà ou non.",
     task:
-      'Le dictionnaire `stats = {"force": 10, "magie": 5}` existe. Augmente "force" de 5 (donc 15) et ajoute une nouvelle clé "agilite" valant 7. Affiche ensuite print(stats).',
+      'Le dictionnaire `stats = {"force": 10, "magie": 5}` existe. Augmente "force" de 5 et ajoute une nouvelle clé "agilite" valant 7. Affiche ensuite le dictionnaire stats.',
     starterCode: 'stats = {"force": 10, "magie": 5}\n\n# Ton code ici\n\nprint(stats)\n',
     hints: [
       'stats["force"] = stats["force"] + 5',
@@ -579,7 +573,7 @@ export const LESSONS: Lesson[] = [
     intro:
       'Accéder à une clé qui n\'existe pas avec dico["cle"] plante le programme. .get("cle", valeur_par_defaut) est plus prudent : elle renvoie la valeur par défaut si la clé est absente.',
     task:
-      'Le dictionnaire `stock = {"pommes": 10, "bananes": 5}` existe (il n\'y a pas de "poires"). Affiche la quantité de "poires" avec stock.get(), en utilisant 0 comme valeur par défaut.',
+      'Le dictionnaire `stock = {"pommes": 10, "bananes": 5}` existe (il n\'y a pas de "poires"). Affiche la quantité de "poires" en stock sans faire planter le programme — utilise 0 s\'il n\'y en a pas.',
     starterCode: 'stock = {"pommes": 10, "bananes": 5}\n\n# Ton code ici\n',
     hints: ['print(stock.get("poires", 0))', 'Le résultat doit être 0, sans erreur.'],
     check: (stdout) =>
@@ -596,8 +590,7 @@ export const LESSONS: Lesson[] = [
     emoji: '✨',
     xp: 15,
     intro: 'Une fonction est un sort réutilisable : `def nom(parametre): return resultat`.',
-    task:
-      'Écris une fonction `double(n)` qui retourne `n * 2`. Puis affiche `double(21)`.',
+    task: 'Écris une fonction `double(n)` qui double le nombre reçu, puis affiche le résultat pour 21.',
     starterCode: 'def double(n):\n    # complète ici\n    pass\n\nprint(double(21))\n',
     hints: [
       'Remplace `pass` par `return n * 2`.',
@@ -616,7 +609,7 @@ export const LESSONS: Lesson[] = [
     xp: 15,
     intro: 'Une fonction peut avoir plusieurs paramètres, et même des valeurs par défaut : `def f(a, b=1):`.',
     task:
-      'Écris une fonction `presenter(nom, titre="Aventurier")` qui retourne la chaîne `f"{titre} {nom}"`. Affiche `presenter("Léo")` puis `presenter("Zoé", "Capitaine")`.',
+      'Écris une fonction `presenter(nom, titre="Aventurier")` qui renvoie le titre suivi du nom. Affiche le résultat pour "Léo" (sans titre précisé), puis pour "Zoé" avec le titre "Capitaine".',
     starterCode:
       'def presenter(nom, titre="Aventurier"):\n    # complète ici\n    pass\n\nprint(presenter("Léo"))\nprint(presenter("Zoé", "Capitaine"))\n',
     hints: [
@@ -637,8 +630,7 @@ export const LESSONS: Lesson[] = [
     emoji: '🔍',
     xp: 25,
     intro: 'On peut combiner fonction, boucle et condition pour créer un vrai outil utile.',
-    task:
-      "Écris une fonction `est_pair(n)` qui retourne `True` si `n` est pair, `False` sinon (utilise le modulo). Affiche `est_pair(10)` puis `est_pair(7)`.",
+    task: "Écris une fonction `est_pair(n)` qui retourne True si n est pair, False sinon. Affiche le résultat pour 10 puis pour 7.",
     starterCode: 'def est_pair(n):\n    # complète ici\n    pass\n\nprint(est_pair(10))\nprint(est_pair(7))\n',
     hints: [
       'return n % 2 == 0',
@@ -662,7 +654,7 @@ export const LESSONS: Lesson[] = [
     intro:
       "Un dragon garde le trésor final. Pour passer, tu dois lui écrire une fonction de vérification de mot de passe digne d'un·e vrai·e programmeur·euse. C'est le moment de combiner tout ce que tu as appris : fonctions, conditions, boucles et texte !",
     task:
-      "Écris une fonction `mot_de_passe_valide(mdp)` qui retourne True seulement si TOUTES ces conditions sont vraies : (1) len(mdp) >= 8, (2) il contient au moins un chiffre. Indice pour le chiffre : parcours les caractères avec `for c in mdp:` et vérifie `c.isdigit()`. Sinon, retourne False. Affiche ensuite le résultat pour \"dragon7fire\" et pour \"court1\".",
+      "Écris une fonction `mot_de_passe_valide(mdp)` qui retourne True seulement si le mot de passe fait au moins 8 caractères ET contient au moins un chiffre, False sinon. Affiche ensuite le résultat pour \"dragon7fire\" et pour \"court1\".",
     starterCode:
       'def mot_de_passe_valide(mdp):\n    # complète ici\n    pass\n\nprint(mot_de_passe_valide("dragon7fire"))\nprint(mot_de_passe_valide("court1"))\n',
     hints: [

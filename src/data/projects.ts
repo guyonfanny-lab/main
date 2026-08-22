@@ -220,7 +220,7 @@ const devineProject: Project = {
       xp: 20,
       intro: "Un vrai joueur essaie plusieurs fois. La liste `essais` contient les propositions faites, dans l'ordre.",
       task:
-        'Avec `nombre_secret = 42` et `essais = [10, 60, 35, 42, 50]`, parcours essais avec une boucle et affiche pour chacun "Trop bas !", "Trop haut !" ou "Trouvé !".',
+        'Avec `nombre_secret = 42` et `essais = [10, 60, 35, 42, 50]`, affiche pour chaque essai "Trop bas !", "Trop haut !" ou "Trouvé !".',
       starterCode: 'nombre_secret = 42\nessais = [10, 60, 35, 42, 50]\n\n# Ton code ici\n',
       hints: [
         'for proposition in essais:\n    if proposition < nombre_secret:\n        print("Trop bas !")\n    elif proposition > nombre_secret:\n        print("Trop haut !")\n    else:\n        print("Trouvé !")',
@@ -242,7 +242,7 @@ const devineProject: Project = {
       xp: 25,
       intro: "Inutile de continuer après avoir trouvé ! Compte les essais utilisés et arrête-toi dès que c'est trouvé.",
       task:
-        'Complète la fonction `deviner(nombre_secret, essais)` : elle parcourt essais, affiche pour chacun le résultat (Trop bas !/Trop haut !/Trouvé !), compte les essais utilisés, s\'arrête (break) dès que trouvé, puis retourne ce nombre d\'essais. Teste avec print(deviner(42, [10, 60, 35, 42, 50])).',
+        'Complète la fonction `deviner(nombre_secret, essais)` : elle affiche le résultat de chaque essai comme avant, s\'arrête dès que le nombre est trouvé, puis retourne le nombre d\'essais utilisés. Teste avec deviner(42, [10, 60, 35, 42, 50]).',
       starterCode:
         'def deviner(nombre_secret, essais):\n    # complète ici\n    pass\n\nprint(deviner(42, [10, 60, 35, 42, 50]))\n',
       hints: [
@@ -283,7 +283,7 @@ const histoireProject: Project = {
       intro:
         "Le module random permet de choisir au hasard. `import random` puis `random.choice(liste)` renvoie un élément pris au hasard dans la liste. Comme c'est aléatoire, la vérification checke juste que ton choix fait bien partie de la liste (pas un résultat exact).",
       task:
-        'Importe random. La liste `animaux = ["dragon", "licorne", "zombie", "robot"]` existe. Choisis-en un au hasard avec random.choice() et affiche-le.',
+        'Importe random. La liste `animaux = ["dragon", "licorne", "zombie", "robot"]` existe. Choisis-en un au hasard et affiche-le.',
       starterCode: 'animaux = ["dragon", "licorne", "zombie", "robot"]\n\n# Ton code ici\n',
       hints: ['import random', 'print(random.choice(animaux))'],
       check: (stdout) => {
@@ -302,7 +302,7 @@ const histoireProject: Project = {
       xp: 20,
       intro: 'Avec plusieurs random.choice(), on peut combiner des mots au hasard dans une phrase avec un f-string.',
       task:
-        'Les listes `personnages` et `lieux` existent. Choisis un élément au hasard dans chacune, puis affiche-les assemblés dans une seule phrase avec un f-string, par exemple : "Un robot dans une forêt enchantée".',
+        'Les listes `personnages` et `lieux` existent. Choisis un élément au hasard dans chacune, puis affiche-les assemblés dans une seule phrase, par exemple : "Un robot dans une forêt enchantée".',
       starterCode: `import random\n\npersonnages = ${JSON.stringify(PERSONNAGES)}\nlieux = ${JSON.stringify(LIEUX)}\n\n# Ton code ici\n`,
       hints: ['print(f"{random.choice(personnages)} {random.choice(lieux)}")'],
       check: (stdout) => {
@@ -359,7 +359,7 @@ const histoireProject: Project = {
       xp: 35,
       intro: 'Dernière étape : génère plusieurs histoires d\'un coup, pour ne jamais s\'ennuyer !',
       task:
-        'Complète la fonction `generer_plusieurs(n, personnages, lieux, actions)` : elle doit afficher n histoires différentes (une par ligne) en appelant generer_histoire n fois dans une boucle, puis retourner le nombre d\'histoires générées. Teste avec print(generer_plusieurs(3, personnages, lieux, actions)).',
+        'Complète la fonction `generer_plusieurs(n, personnages, lieux, actions)` : elle doit afficher n histoires différentes (une par ligne), puis retourner le nombre d\'histoires générées. Teste avec generer_plusieurs(3, personnages, lieux, actions).',
       starterCode: `import random\n\npersonnages = ${JSON.stringify(PERSONNAGES)}\nlieux = ${JSON.stringify(LIEUX)}\nactions = ${JSON.stringify(ACTIONS)}\n\ndef generer_histoire(personnages, lieux, actions):\n    return f"{random.choice(personnages)} {random.choice(lieux)} {random.choice(actions)}"\n\ndef generer_plusieurs(n, personnages, lieux, actions):\n    # complète ici\n    pass\n\nprint(generer_plusieurs(3, personnages, lieux, actions))\n`,
       hints: [
         'Utilise for _ in range(n): pour répéter n fois.',
@@ -413,7 +413,7 @@ const emojiProject: Project = {
       emoji: '❓',
       xp: 15,
       intro: "Si un mot n'est pas dans le dictionnaire, .get() évite le plantage en renvoyant une valeur par défaut.",
-      task: `Avec le même dictionnaire mots_emoji, affiche l'emoji pour "licorne" (absent du dictionnaire) en utilisant .get() avec "❓" comme valeur par défaut.`,
+      task: `Avec le même dictionnaire mots_emoji, affiche l'emoji pour "licorne" (absent du dictionnaire) sans faire planter le programme — affiche "❓" si le mot est inconnu.`,
       starterCode: `mots_emoji = ${EMOJI_DICT_CODE}\n\n# Ton code ici\n`,
       hints: ['print(mots_emoji.get("licorne", "❓"))'],
       check: (stdout) =>
@@ -427,7 +427,7 @@ const emojiProject: Project = {
       xp: 20,
       intro: 'On peut découper une phrase en mots avec .split(), puis traduire chaque mot un par un.',
       task:
-        'La variable `phrase = "chat pizza fusée"` existe. Découpe-la en mots, traduis chaque mot avec mots_emoji (utilise .get() avec "❓" par défaut), et affiche chaque emoji sur sa propre ligne.',
+        'La variable `phrase = "chat pizza fusée"` existe. Découpe-la en mots, traduis chacun avec mots_emoji (affiche "❓" pour un mot inconnu), et affiche chaque emoji sur sa propre ligne.',
       starterCode: `mots_emoji = ${EMOJI_DICT_CODE}\nphrase = "chat pizza fusée"\n\n# Ton code ici\n`,
       hints: ['mots = phrase.split()', 'for mot in mots:\n    print(mots_emoji.get(mot, "❓"))'],
       check: (stdout) => {
@@ -445,7 +445,7 @@ const emojiProject: Project = {
       xp: 25,
       intro: "Transforme tout ça en fonction réutilisable qui traduit n'importe quelle phrase, emojis collés ensemble.",
       task:
-        'Complète `traduire(phrase, dico)` : elle découpe phrase en mots, traduit chacun (avec .get() et "❓" par défaut), et retourne le tout collé en une seule chaîne (sans espace). Teste avec print(traduire("chien chat fusée", mots_emoji)).',
+        'Complète `traduire(phrase, dico)` : elle découpe phrase en mots, traduit chacun ("❓" si inconnu), et retourne le tout collé en une seule chaîne, sans espace. Teste avec traduire("chien chat fusée", mots_emoji).',
       starterCode: `mots_emoji = ${EMOJI_DICT_CODE}\n\ndef traduire(phrase, dico):\n    # complète ici\n    pass\n\nprint(traduire("chien chat fusée", mots_emoji))\n`,
       hints: [
         'Utilise une variable resultat = "" puis ajoute chaque traduction dedans au fil de la boucle.',
@@ -538,7 +538,7 @@ const cesarProject: Project = {
       xp: 35,
       intro: 'Transforme tout en fonction réutilisable, capable de chiffrer ET déchiffrer (le déchiffrement, c\'est juste décaler dans l\'autre sens, avec un décalage négatif !).',
       task:
-        'Complète `chiffrer(message, decalage)` : chiffre chaque lettre (espaces inchangés) et retourne le résultat. Teste avec print(chiffrer("un chat", 2)), puis déchiffre en appelant print(chiffrer("wp ejcv", -2)).',
+        'Complète `chiffrer(message, decalage)` : chiffre chaque lettre (espaces inchangés) et retourne le résultat. Teste avec chiffrer("un chat", 2), puis déchiffre avec chiffrer("wp ejcv", -2).',
       starterCode:
         'def chiffrer(message, decalage):\n    # complète ici\n    pass\n\nprint(chiffrer("un chat", 2))\nprint(chiffrer("wp ejcv", -2))\n',
       hints: [
@@ -601,7 +601,7 @@ const quizProject: Project = {
       xp: 20,
       intro: 'Un vrai quiz pose plusieurs questions. La liste `reponses` contient le profil choisi à chaque question.',
       task:
-        'Avec `scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}` et `reponses = ["Mage", "Guerrier", "Mage", "Mage", "Voleur"]`, parcours reponses et ajoute 1 point au bon profil à chaque tour, puis affiche scores.',
+        'Avec `scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}` et `reponses = ["Mage", "Guerrier", "Mage", "Mage", "Voleur"]`, ajoute 1 point au bon profil pour chaque réponse, puis affiche scores.',
       starterCode:
         'scores = {"Guerrier": 0, "Mage": 0, "Voleur": 0}\nreponses = ["Mage", "Guerrier", "Mage", "Mage", "Voleur"]\n\n# Ton code ici\n\nprint(scores)\n',
       hints: ['for profil in reponses:\n    scores[profil] += 1'],
@@ -630,7 +630,7 @@ const quizProject: Project = {
       xp: 35,
       intro: 'Assemble tout : questions, score, gagnant — un vrai quiz de personnalité prêt à jouer !',
       task:
-        'Complète `resultat_quiz(reponses)` : elle crée un dictionnaire scores à zéro pour "Guerrier", "Mage" et "Voleur", ajoute 1 point au bon profil pour chaque réponse de la liste reponses, puis retourne le profil gagnant. Teste avec print(resultat_quiz(["Mage", "Guerrier", "Mage", "Mage", "Voleur"])).',
+        'Complète `resultat_quiz(reponses)` : elle crée un dictionnaire scores à zéro pour "Guerrier", "Mage" et "Voleur", ajoute 1 point au bon profil pour chaque réponse de la liste reponses, puis retourne le profil gagnant. Teste avec resultat_quiz(["Mage", "Guerrier", "Mage", "Mage", "Voleur"]).',
       starterCode:
         'def resultat_quiz(reponses):\n    # complète ici\n    pass\n\nprint(resultat_quiz(["Mage", "Guerrier", "Mage", "Mage", "Voleur"]))\n',
       hints: [
@@ -702,7 +702,7 @@ const tortueProject: Project = {
       emoji: '⬛',
       xp: 20,
       intro: 'En répétant 4 fois "avancer + tourner de 90°" avec une boucle, on ferme complètement un carré !',
-      task: 'Utilise une boucle for pour dessiner un carré de côté 70 (répète 4 fois : avancer(70) puis tourner_droite(90)).',
+      task: 'Dessine un carré de côté 70 : la tortue doit revenir pile à son point de départ.',
       starterCode: '# Ton code ici\n',
       hints: ['for _ in range(4):\n    avancer(70)\n    tourner_droite(90)'],
       check: (_stdout, _get, commands) => {
@@ -720,7 +720,7 @@ const tortueProject: Project = {
       emoji: '🎨',
       xp: 20,
       intro: 'couleur("violet") change la couleur du trait. Essaie une autre couleur pour ton carré magique !',
-      task: 'Dessine un carré de côté 70 (comme avant) mais en couleur "violet" (utilise couleur("violet") avant de dessiner).',
+      task: 'Dessine un carré de côté 70 (comme avant) mais en couleur "violet".',
       starterCode: '# Ton code ici\n',
       hints: ['couleur("violet")\nfor _ in range(4):\n    avancer(70)\n    tourner_droite(90)'],
       check: (_stdout, _get, commands) => {
@@ -743,7 +743,7 @@ const tortueProject: Project = {
       xp: 25,
       intro:
         "En changeant l'angle de rotation, une simple boucle peut dessiner des étoiles magnifiques. Avec un angle de 144°, la forme devient une étoile à 5 branches !",
-      task: 'Dessine une étoile à 5 branches : répète 5 fois avancer(100) puis tourner_droite(144).',
+      task: 'Dessine une étoile à 5 branches, avec des traits de 100 pixels.',
       starterCode: '# Ton code ici\n',
       hints: ['for _ in range(5):\n    avancer(100)\n    tourner_droite(144)'],
       check: (_stdout, _get, commands) => {
@@ -763,7 +763,7 @@ const tortueProject: Project = {
       intro:
         "Transforme ta boucle en fonction réutilisable qui dessine n'importe quel polygone régulier (triangle, carré, pentagone, étoile...) selon les paramètres qu'on lui donne.",
       task:
-        'Complète `dessiner_polygone(nb_cotes, longueur, angle)` : elle répète nb_cotes fois avancer(longueur) puis tourner_droite(angle). Teste avec dessiner_polygone(6, 50, 60) pour dessiner un hexagone.',
+        "Complète `dessiner_polygone(nb_cotes, longueur, angle)` pour qu'elle dessine n'importe quel polygone régulier. Teste avec dessiner_polygone(6, 50, 60) pour un hexagone.",
       starterCode: 'def dessiner_polygone(nb_cotes, longueur, angle):\n    # complète ici\n    pass\n\ndessiner_polygone(6, 50, 60)\n',
       hints: ['for _ in range(nb_cotes):\n        avancer(longueur)\n        tourner_droite(angle)'],
       check: (_stdout, _get, commands) => {
@@ -821,7 +821,7 @@ const fermeProject: Project = {
       emoji: '🌾',
       xp: 15,
       intro: 'recolter() récolte la culture sur la case où se trouve le tracteur, si elle est prête.',
-      task: 'Une récolte prête se trouve juste devant le tracteur. Avance d\'une case avec deplacer(), puis récolte avec recolter().',
+      task: "Une récolte prête se trouve juste devant le tracteur. Avance d'une case, puis récolte-la.",
       starterCode: '# Ton code ici\n',
       farmConfig: { width: 3, height: 1, cells: row('vide', 'recolte', 'vide'), startX: 0, startY: 0, startFacing: 90 },
       hints: ['deplacer()\nrecolter()'],
@@ -839,7 +839,7 @@ const fermeProject: Project = {
       intro:
         'case_recoltable() te dit (True ou False) si la case actuelle contient une récolte prête, avant même de la récolter.',
       task:
-        'Le champ contient une case vide puis une case avec une récolte. Affiche case_recoltable() sur la case de départ, avance une fois avec deplacer(), puis affiche case_recoltable() à nouveau.',
+        "Le champ contient une case vide puis une case avec une récolte. Affiche si la case de départ est récoltable, avance d'une case, puis affiche-le à nouveau.",
       starterCode: '# Ton code ici\n',
       farmConfig: { width: 3, height: 1, cells: row('vide', 'recolte', 'vide'), startX: 0, startY: 0, startFacing: 90 },
       hints: ['print(case_recoltable())\ndeplacer()\nprint(case_recoltable())'],
@@ -859,7 +859,7 @@ const fermeProject: Project = {
       intro:
         "Combine boucle, capteur et récolte pour tout ramasser automatiquement, sans savoir à l'avance où sont les récoltes.",
       task:
-        'Le champ (5 cases) contient des récoltes à des endroits que tu ne connais pas à l\'avance. Écris une boucle qui, pour chacune des 5 cases (en avançant à chaque tour) : récolte si case_recoltable() est vrai.',
+        "Le champ (5 cases) contient des récoltes à des endroits que tu ne connais pas à l'avance. Récolte tout le champ, case par case.",
       starterCode: '# Ton code ici\n',
       farmConfig: {
         width: 5,
@@ -884,7 +884,7 @@ const fermeProject: Project = {
       intro:
         "Transforme ta boucle en fonction réutilisable, capable de récolter une ligne de n'importe quelle taille — ton tracteur est maintenant totalement autonome.",
       task:
-        'Complète `recolter_ligne(nb_cases)` : pour chacune des nb_cases cases, récolte si case_recoltable() est vrai, puis avance. Teste avec recolter_ligne(6) sur un champ de 6 cases.',
+        'Complète `recolter_ligne(nb_cases)` pour qu\'elle récolte toute une ligne de nb_cases cases. Teste avec recolter_ligne(6) sur un champ de 6 cases.',
       starterCode: 'def recolter_ligne(nb_cases):\n    # complète ici\n    pass\n\nrecolter_ligne(6)\n',
       farmConfig: {
         width: 6,
@@ -930,7 +930,7 @@ const fermeProject: Project = {
       intro:
         'recolter_ligne() marche quelle que soit la direction du tracteur : elle avance juste tout droit en récoltant. Réutilise-la pour nettoyer une ligne, revenir, descendre, puis nettoyer la suivante.',
       task:
-        'La fonction recolter_ligne est déjà prête. Récolte la ligne 0 (recolter_ligne(4)), reviens au début (demi-tour + recolter_ligne(4) à nouveau — ça ne fait rien de mal sur des cases déjà récoltées), redescends d\'une ligne comme à l\'étape précédente, puis récolte la ligne 1.',
+        "La fonction recolter_ligne est déjà prête. Récolte la ligne 0, reviens au début de la ligne, redescends comme à l'étape précédente, puis récolte la ligne 1.",
       starterCode:
         'def recolter_ligne(nb_cases):\n    for _ in range(nb_cases):\n        if case_recoltable():\n            recolter()\n        deplacer()\n\n# Ton code ici\n',
       farmConfig: {
@@ -964,7 +964,7 @@ const fermeProject: Project = {
       intro:
         "Généralise en une fonction recolter_champ(largeur, hauteur) qui répète le motif ligne par ligne — ton tracteur peut maintenant nettoyer un champ de n'importe quelle taille, tout seul.",
       task:
-        'Complète `recolter_champ(largeur, hauteur)` : pour chaque ligne (boucle sur hauteur), récolte-la (recolter_ligne(largeur)), reviens au début (demi-tour + recolter_ligne(largeur)), puis passe à la ligne suivante — sauf sur la toute dernière ligne. Teste avec recolter_champ(4, 3).',
+        'Complète `recolter_champ(largeur, hauteur)` pour qu\'elle récolte un champ entier, ligne par ligne. Teste avec recolter_champ(4, 3).',
       starterCode:
         'def recolter_ligne(nb_cases):\n    for _ in range(nb_cases):\n        if case_recoltable():\n            recolter()\n        deplacer()\n\ndef recolter_champ(largeur, hauteur):\n    # complète ici\n    pass\n\nrecolter_champ(4, 3)\n',
       farmConfig: {
@@ -1001,7 +1001,7 @@ const fermeProject: Project = {
       intro:
         "Certains champs ont des rochers (🪨) : impossible d'avancer dessus, le tracteur reste bloqué s'il essaie. case_libre() te dit si la case juste devant toi est libre, avant même d'avancer.",
       task:
-        "Le champ a un rocher tout au bout. Affiche case_libre() sur la case de départ (rien devant, True), avance deux fois, puis affiche case_libre() à nouveau (le rocher est juste devant, False).",
+        "Le champ a un rocher tout au bout. Affiche si la case juste devant est libre, avance deux fois, puis affiche-le à nouveau.",
       starterCode: '# Ton code ici\n',
       farmConfig: {
         width: 4,
@@ -1058,7 +1058,7 @@ const fermeProject: Project = {
       xp: 20,
       intro:
         "planter() plante une graine sur une case vide — elle pousse instantanément (la magie du code !) et devient prête à récolter.",
-      task: 'La case de départ est vide. Plante une culture avec planter(), vérifie avec case_recoltable() (True), puis récolte-la avec recolter().',
+      task: 'La case de départ est vide. Plante une culture, vérifie qu\'elle est prête, puis récolte-la.',
       starterCode: '# Ton code ici\n',
       farmConfig: { width: 1, height: 1, cells: field(1, 1, []), startX: 0, startY: 0, startFacing: 90 },
       hints: ['planter()\nprint(case_recoltable())\nrecolter()'],
@@ -1107,7 +1107,7 @@ const fermeProject: Project = {
       intro:
         "planter() sème une graine sur une case vide, recolter() récolte une case prête. En combinant les deux avec case_recoltable(), le tracteur peut s'occuper de n'importe quelle case : la récolter si elle est prête, sinon la semer puis la récolter aussitôt.",
       task:
-        "Le champ a 3 cases : vide, récolte, vide. Pour chacune (en avançant entre elles) : si case_recoltable() est vrai, récolte ; sinon, plante puis récolte.",
+        "Le champ a 3 cases : vide, récolte, vide. Traite chacune : récolte si elle est prête, sinon plante puis récolte.",
       starterCode: '# Ton code ici\n',
       farmConfig: { width: 3, height: 1, cells: row('vide', 'recolte', 'vide'), startX: 0, startY: 0, startFacing: 90 },
       hints: [
@@ -1128,7 +1128,7 @@ const fermeProject: Project = {
       intro:
         "Transforme ce motif en fonction travailler_case(), puis répète-la en boucle sur toute une ligne : le tracteur sème et récolte tout seul, quel que soit l'état de départ de chaque case.",
       task:
-        'Complète travailler_case() (récolte si prêt, sinon plante puis récolte). Puis, avec une boucle de 5 tours : travailler_case(), puis avance.',
+        "Complète travailler_case() pour qu'elle traite n'importe quelle case (récolte si prête, sinon plante puis récolte). Applique-la ensuite aux 5 cases du champ.",
       starterCode: 'def travailler_case():\n    # complète ici\n    pass\n\n# Ton code ici\n',
       farmConfig: {
         width: 5,
@@ -1156,7 +1156,7 @@ const fermeProject: Project = {
       intro:
         "travailler_ligne (déjà prête) marche quelle que soit la direction du tracteur. Utilise-la, fais demi-tour, reviens au début avec de simples deplacer() (plus rien à travailler sur le chemin du retour), redescends comme tu sais déjà faire, puis retravaille la ligne suivante.",
       task:
-        'Le champ a 2 lignes de 4 cases. Utilise travailler_ligne(4), fais demi-tour, reviens au début (3 deplacer()), redescends à la ligne suivante (comme à "Changer de ligne"), puis travailler_ligne(4) à nouveau.',
+        "Le champ a 2 lignes de 4 cases. Travaille la ligne 0, reviens au début de la ligne, redescends comme précédemment, puis travaille la ligne 1.",
       starterCode:
         'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\n# Ton code ici\n',
       farmConfig: { width: 4, height: 2, cells: field(4, 2, [[1, 0], [3, 0], [0, 1], [2, 1]]), startX: 0, startY: 0, startFacing: 90 },
@@ -1178,7 +1178,7 @@ const fermeProject: Project = {
       intro:
         "Généralise en une fonction travailler_champ(largeur, hauteur) qui répète le motif ligne par ligne. Combinée à planter(), elle est plus puissante que recolter_champ : elle marche même sur un champ complètement vide au départ.",
       task:
-        'Complète `travailler_champ(largeur, hauteur)` sur le modèle de recolter_champ : pour chaque ligne, travailler_ligne(largeur), puis (sauf sur la dernière ligne) demi-tour, retour au début, passage à la ligne suivante. Teste avec travailler_champ(4, 3).',
+        "Complète `travailler_champ(largeur, hauteur)` sur le modèle de recolter_champ, pour qu'elle traite un champ entier ligne par ligne. Teste avec travailler_champ(4, 3).",
       starterCode:
         'def travailler_case():\n    if case_recoltable():\n        recolter()\n    else:\n        planter()\n        recolter()\n\ndef travailler_ligne(nb_cases):\n    for _ in range(nb_cases):\n        travailler_case()\n        deplacer()\n\ndef travailler_champ(largeur, hauteur):\n    # complète ici\n    pass\n\ntravailler_champ(4, 3)\n',
       farmConfig: {
@@ -1306,7 +1306,7 @@ const fermeProject: Project = {
       intro:
         "Sur une longue ligne, impossible de savoir à l'avance où seront les rochers. Avec case_libre(), le tracteur peut avancer normalement quand la voie est libre, et faire un petit détour par la ligne du dessous quand elle ne l'est pas — sans jamais se bloquer.",
       task:
-        "Complète `recolter_ligne_avec_detour(nb_cases)` : tant que toutes les cases ne sont pas visitées, récolte si possible, puis avance normalement si case_libre(), sinon fais le détour (descendre, avancer deux fois, remonter) en comptant une case de plus. Teste avec recolter_ligne_avec_detour(6).",
+        "Complète `recolter_ligne_avec_detour(nb_cases)` pour qu'elle récolte toute la ligne en contournant les rochers rencontrés en chemin. Teste avec recolter_ligne_avec_detour(6).",
       starterCode:
         'def recolter_ligne_avec_detour(nb_cases):\n    colonne = 0\n    while colonne < nb_cases:\n        if case_recoltable():\n            recolter()\n        colonne = colonne + 1\n        if colonne < nb_cases:\n            if case_libre():\n                deplacer()\n            else:\n                # complète ici : détour par la ligne du dessous\n                pass\n\nrecolter_ligne_avec_detour(6)\n',
       farmConfig: {
@@ -1743,7 +1743,7 @@ const labyrintheProject: Project = {
       intro:
         "Plutôt que de mémoriser un chemin, un robot intelligent utilise case_libre() pour décider tout seul : il avance tant que c'est possible, et tourne à droite dès qu'il est bloqué.",
       task:
-        "Complète `avancer_intelligent()` : si case_libre() est vrai, avance ; sinon, tourne à droite puis avance. Appelle-la 4 fois pour atteindre la sortie, sans jamais connaître le labyrinthe à l'avance.",
+        "Complète `avancer_intelligent()` pour qu'elle avance quand c'est possible et tourne à droite sinon. Appelle-la 4 fois pour atteindre la sortie, sans jamais connaître le labyrinthe à l'avance.",
       starterCode: 'def avancer_intelligent():\n    # complète ici\n    pass\n\nfor _ in range(4):\n    avancer_intelligent()\n',
       farmConfig: {
         width: 3,

@@ -57,7 +57,7 @@ export const CHALLENGES: Challenge[] = [
     difficulty: 'Débutant',
     intro: 'Un palindrome se lit pareil à l’endroit et à l’envers, comme "radar" ou "kayak".',
     task:
-      'La variable `mot = "radar"` existe. Affiche True si mot est un palindrome, False sinon (indice : mot == mot[::-1]).',
+      'La variable `mot = "radar"` existe. Affiche True si mot est un palindrome, False sinon.',
     starterCode: 'mot = "radar"\n\n# Ton code ici\n',
     hints: ['print(mot == mot[::-1])'],
     check: (stdout) =>
@@ -162,7 +162,7 @@ export const CHALLENGES: Challenge[] = [
     difficulty: 'Intermédiaire',
     intro: 'Deux mots sont des anagrammes s’ils contiennent exactement les mêmes lettres, réarrangées.',
     task:
-      'Les variables `mot1 = "chien"` et `mot2 = "niche"` existent. Affiche True si ce sont des anagrammes, False sinon (indice : compare les lettres triées).',
+      'Les variables `mot1 = "chien"` et `mot2 = "niche"` existent. Affiche True si ce sont des anagrammes, False sinon.',
     starterCode: 'mot1 = "chien"\nmot2 = "niche"\n\n# Ton code ici\n',
     hints: ['print(sorted(mot1) == sorted(mot2))'],
     check: (stdout) =>
